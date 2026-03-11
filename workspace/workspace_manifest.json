@@ -1,0 +1,14 @@
+{
+  "created_at": "2026-03-11T22:19:48.412229",
+  "source_skus_dir": "/Users/xumingyu/product/Anything2Workspace/output/skus",
+  "workspace_dir": "/Users/xumingyu/product/Anything2Workspace/workspace",
+  "factual_count": 21,
+  "procedural_count": 23,
+  "has_relational": true,
+  "has_mapping": true,
+  "has_eureka": true,
+  "has_spec": false,
+  "has_readme": true,
+  "total_files_copied": 100,
+  "paths_rewritten": 93
+}

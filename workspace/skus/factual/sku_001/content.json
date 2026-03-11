@@ -1,0 +1,37 @@
+[
+  {
+    "name": "diagnosing-negotiation-issues",
+    "description": "诊断谈判中的非理性行为和信任问题",
+    "has_references": true
+  },
+  {
+    "name": "disadvantaged-negotiation-strategies",
+    "description": "在谈判处于劣势时使用的策略组合",
+    "has_references": true
+  },
+  {
+    "name": "evidence-based-learning-strategy",
+    "description": "指导如何选择谈判学习资源和制定有效的学习计划",
+    "has_references": false
+  },
+  {
+    "name": "managing-emotions-and-threats",
+    "description": "管理谈判中的情绪、威胁和面子问题",
+    "has_references": true
+  },
+  {
+    "name": "negotiation-cognitive-biases-and-ethics",
+    "description": "识别和管理谈判中的认知偏差与伦理问题",
+    "has_references": true
+  },
+  {
+    "name": "negotiation-decision-and-improvement",
+    "description": "评估是否应该进行谈判，以及通过内归因持续提升谈判能力",
+    "has_references": false
+  },
+  {
+    "name": "negotiation-fundamentals-and-psychology",
+    "description": "理解谈判的普遍性本质和心理学基础",
+    "has_references": false
+  }
+]

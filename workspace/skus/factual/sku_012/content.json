@@ -1,0 +1,52 @@
+[
+  {
+    "endpoint": "/",
+    "method": "GET",
+    "description": "主页面"
+  },
+  {
+    "endpoint": "/api/scenarios",
+    "method": "GET",
+    "description": "获取所有场景"
+  },
+  {
+    "endpoint": "/api/scenarios",
+    "method": "POST",
+    "description": "创建新场景"
+  },
+  {
+    "endpoint": "/api/scenarios/generate",
+    "method": "POST",
+    "description": "AI生成随机场景"
+  },
+  {
+    "endpoint": "/api/scenarios/{id}",
+    "method": "DELETE",
+    "description": "删除场景"
+  },
+  {
+    "endpoint": "/api/skills",
+    "method": "GET",
+    "description": "获取谈判技能库"
+  },
+  {
+    "endpoint": "/api/skills/{skill_id}",
+    "method": "GET",
+    "description": "获取特定技能详情"
+  },
+  {
+    "endpoint": "/api/state",
+    "method": "GET",
+    "description": "获取当前谈判状态"
+  },
+  {
+    "endpoint": "/api/reset",
+    "method": "POST",
+    "description": "重置谈判"
+  },
+  {
+    "endpoint": "/api/analyze",
+    "method": "POST",
+    "description": "分析谈判结果"
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "name": "橙子争夺战",
+    "lesson": "关注利益而非立场",
+    "type": "non_value"
+  },
+  {
+    "name": "戴维营协议",
+    "lesson": "创造性选项可以满足双方核心利益",
+    "type": "non_value"
+  },
+  {
+    "name": "图书馆窗户",
+    "lesson": "探索替代方案",
+    "type": "non_value"
+  },
+  {
+    "name": "劳资纠纷",
+    "lesson": "使用客观标准",
+    "type": "value"
+  },
+  {
+    "name": "房产继承",
+    "lesson": "分离人与问题",
+    "type": "non_value"
+  },
+  {
+    "name": "跨国并购",
+    "lesson": "扩大谈判议题",
+    "type": "value"
+  },
+  {
+    "name": "邻里噪音",
+    "lesson": "维护关系的同时解决问题",
+    "type": "non_value"
+  },
+  {
+    "name": "供应商谈判",
+    "lesson": "BATNA的运用",
+    "type": "value"
+  },
+  {
+    "name": "项目延期",
+    "lesson": "共同制定解决方案",
+    "type": "non_value"
+  },
+  {
+    "name": "离婚协议",
+    "lesson": "控制情绪，聚焦利益",
+    "type": "non_value"
+  }
+]

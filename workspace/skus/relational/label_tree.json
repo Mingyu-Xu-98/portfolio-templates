@@ -1,0 +1,139 @@
+{
+  "roots": [
+    {
+      "name": "地理",
+      "children": [
+        {
+          "name": "沙漠",
+          "children": []
+        },
+        {
+          "name": "冰川",
+          "children": []
+        },
+        {
+          "name": "山地",
+          "children": []
+        },
+        {
+          "name": "湖泊",
+          "children": []
+        },
+        {
+          "name": "峡谷",
+          "children": []
+        },
+        {
+          "name": "喀斯特地貌",
+          "children": []
+        },
+        {
+          "name": "江河",
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "生态",
+      "children": [
+        {
+          "name": "动物",
+          "children": []
+        },
+        {
+          "name": "植物",
+          "children": []
+        },
+        {
+          "name": "迁徙",
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "气候",
+      "children": [
+        {
+          "name": "极端干旱",
+          "children": []
+        },
+        {
+          "name": "极寒",
+          "children": []
+        },
+        {
+          "name": "湿热",
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "物种稀有度",
+      "children": [
+        {
+          "name": "普通",
+          "children": []
+        },
+        {
+          "name": "稀有",
+          "children": []
+        },
+        {
+          "name": "传说",
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "谈判",
+      "children": [
+        {
+          "name": "谈判策略",
+          "children": []
+        },
+        {
+          "name": "谈判技巧",
+          "children": []
+        },
+        {
+          "name": "谈判心理学",
+          "children": []
+        },
+        {
+          "name": "谈判场景",
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "认知偏差",
+      "children": [
+        {
+          "name": "有限理性",
+          "children": []
+        },
+        {
+          "name": "利益冲突",
+          "children": []
+        },
+        {
+          "name": "自我中心主义",
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "信任类型",
+      "children": [
+        {
+          "name": "能力信任",
+          "children": []
+        },
+        {
+          "name": "品格信任",
+          "children": []
+        }
+      ]
+    }
+  ]
+}
