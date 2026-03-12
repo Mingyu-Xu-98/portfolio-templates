@@ -1,0 +1,754 @@
+{
+  "entries": [
+    {
+      "term": "塔克拉玛干沙漠",
+      "definition": "中国最大的沙漠，世界第二大的流动沙漠，位于亚欧大陆正中心，是世界上与海洋相隔最远的区域。",
+      "labels": [
+        "地理",
+        "沙漠"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Taklamakan Desert"
+      ],
+      "related_terms": [
+        "天山",
+        "昆仑山",
+        "塔里木河"
+      ]
+    },
+    {
+      "term": "天山",
+      "definition": "全球最大的独立山系，全长2500千米，平均海拔4000米，截住了来自大西洋的水汽。",
+      "labels": [
+        "地理",
+        "山地"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Tianshan Mountains"
+      ],
+      "related_terms": [
+        "塔克拉玛干沙漠"
+      ]
+    },
+    {
+      "term": "昆仑山",
+      "definition": "青藏高原的北界，平均海拔超过5500米，将塔克拉玛干沙漠牢牢包围。",
+      "labels": [
+        "地理",
+        "山地"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [],
+      "related_terms": [
+        "塔克拉玛干沙漠"
+      ]
+    },
+    {
+      "term": "普若岗日大冰原",
+      "definition": "世界上中低纬度区最大最极致的冰原，平均海拔超过6000米，总面积423平方千米。",
+      "labels": [
+        "地理",
+        "冰川"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Purog Kangri Ice Field"
+      ],
+      "related_terms": [
+        "藏羚羊",
+        "野牦牛"
+      ]
+    },
+    {
+      "term": "大兴安岭",
+      "definition": "中国面积最大的寒温带森林所在地，冬季平均气温接近零下30℃，结冰期长达六个月以上。",
+      "labels": [
+        "地理",
+        "山地"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Greater Khingan Mountains"
+      ],
+      "related_terms": [
+        "驯鹿",
+        "紫貂"
+      ]
+    },
+    {
+      "term": "呼伦湖",
+      "definition": "中国第五大湖，北方最大的淡水湖，面积比香港特区的陆地面积大两倍还多。",
+      "labels": [
+        "地理",
+        "湖泊"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Lake Hulun"
+      ],
+      "related_terms": [
+        "大天鹅",
+        "游鼻天鹅"
+      ]
+    },
+    {
+      "term": "雅鲁藏布大峡谷",
+      "definition": "世界上最深最大的峡谷，由亚欧板块与印度板块的剧烈碰撞形成，拥有从寒带到热带的完整生态系统。",
+      "labels": [
+        "地理",
+        "峡谷"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Yarlung Tsangpo Grand Canyon"
+      ],
+      "related_terms": [
+        "南迦巴瓦峰",
+        "黑颈鹤",
+        "白颊猕猴"
+      ]
+    },
+    {
+      "term": "南迦巴瓦峰",
+      "definition": "喜马拉雅山脉东端制高点，海拔7782米，与加拉白垒峰夹峙形成雅鲁藏布大峡谷。",
+      "labels": [
+        "地理",
+        "山地"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Namcha Barwa Peak"
+      ],
+      "related_terms": [
+        "雅鲁藏布大峡谷"
+      ]
+    },
+    {
+      "term": "喀斯特地貌",
+      "definition": "可溶性岩石历经千万年形成的岩溶地貌，中国南方是全球热带亚热带喀斯特发育面积最大最典型的区域。",
+      "labels": [
+        "地理",
+        "喀斯特地貌"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "South China Karst",
+        "岩溶地貌"
+      ],
+      "related_terms": [
+        "石林",
+        "天坑",
+        "溶洞"
+      ]
+    },
+    {
+      "term": "三江并流",
+      "definition": "怒江、澜沧江、金沙江三条大江由北向南并行奔流的独特区域，最窄处仅相距19千米和46千米。",
+      "labels": [
+        "地理",
+        "江河"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Three Parallel Rivers"
+      ],
+      "related_terms": [
+        "怒江",
+        "澜沧江",
+        "金沙江",
+        "梅里雪山"
+      ]
+    },
+    {
+      "term": "梅里雪山",
+      "definition": "三江并流区最高点，海拔6740米，是藏传佛教的朝觐圣地。",
+      "labels": [
+        "地理",
+        "山地"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Meili Snow Mountain"
+      ],
+      "related_terms": [
+        "三江并流"
+      ]
+    },
+    {
+      "term": "白尾地鸦",
+      "definition": "全球仅四种地鸦之一，塔克拉玛干沙漠特有种，几乎不会飞，以地面奔跑代替飞行。",
+      "labels": [
+        "生态",
+        "动物"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "White-tailed Ground Jay"
+      ],
+      "related_terms": [
+        "塔克拉玛干沙漠"
+      ]
+    },
+    {
+      "term": "塔里木马鹿",
+      "definition": "世界上唯一以荒漠为家的马鹿，在塔里木河沿岸荒漠中寻找水源和食物。",
+      "labels": [
+        "生态",
+        "动物"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Tarim Red Deer"
+      ],
+      "related_terms": [
+        "塔克拉玛干沙漠",
+        "胡杨林"
+      ]
+    },
+    {
+      "term": "藏羚羊",
+      "definition": "生活在青藏高原的哺乳动物，适应高海拔低氧环境，冬季迁往海拔更低的山谷，每年迁徙300公里到可可西里产仔。",
+      "labels": [
+        "生态",
+        "动物",
+        "迁徙"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Tibetan Antelope"
+      ],
+      "related_terms": [
+        "普若岗日大冰原"
+      ]
+    },
+    {
+      "term": "野牦牛",
+      "definition": "生活在青藏高原的哺乳动物，厚实皮毛抵御极寒，偏爱集群生活互相取暖保护。",
+      "labels": [
+        "生态",
+        "动物"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Wild Yak"
+      ],
+      "related_terms": [
+        "普若岗日大冰原"
+      ]
+    },
+    {
+      "term": "驯鹿",
+      "definition": "大兴安岭森林中的独特物种，中国境内唯一分布区，冬季依靠白色石蕊为生，跟随鄂温克牧民迁移越冬。",
+      "labels": [
+        "生态",
+        "动物"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Reindeer"
+      ],
+      "related_terms": [
+        "大兴安岭",
+        "白色石蕊"
+      ]
+    },
+    {
+      "term": "黑颈鹤",
+      "definition": "地球上15种鹤类中最晚被命名的，唯一终生以高原为家的鹤，在雅江湿地栖息越冬。",
+      "labels": [
+        "生态",
+        "动物",
+        "迁徙"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Black-necked Crane"
+      ],
+      "related_terms": [
+        "雅鲁藏布大峡谷"
+      ]
+    },
+    {
+      "term": "白颊猕猴",
+      "definition": "罕见灵长类，2015年才被中国科学家首次确认，深居简出异常警惕，依靠紧密的家族纽带在峡谷中生存。",
+      "labels": [
+        "生态",
+        "动物"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "White-cheeked Macaque"
+      ],
+      "related_terms": [
+        "雅鲁藏布大峡谷"
+      ]
+    },
+    {
+      "term": "白头叶猴",
+      "definition": "唯一终生以石山为家的灵长类，生活在广西崇左石峰之巅，是人类的近亲。",
+      "labels": [
+        "生态",
+        "动物"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "White-headed Langur"
+      ],
+      "related_terms": [
+        "喀斯特地貌"
+      ]
+    },
+    {
+      "term": "怒江金丝猴",
+      "definition": "金丝猴新种，毛色灰黑行踪飘忽，仅约400只，生活在高黎贡山密林中，极度稀有。",
+      "labels": [
+        "生态",
+        "动物"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Nujiang Snub-nosed Monkey"
+      ],
+      "related_terms": [
+        "三江并流",
+        "高黎贡山"
+      ]
+    },
+    {
+      "term": "滇金丝猴",
+      "definition": "世界上栖息地海拔最高的金丝猴，生活在三江并流区的针叶阔叶混交林中。",
+      "labels": [
+        "生态",
+        "动物"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Yunnan Snub-nosed Monkey"
+      ],
+      "related_terms": [
+        "三江并流"
+      ]
+    },
+    {
+      "term": "翡翠龙蜥",
+      "definition": "全球仅存于澜沧江上游河谷，浑身翠绿忍饥耐渴，2016年才被科学界正式发现，数量极其稀少。",
+      "labels": [
+        "生态",
+        "动物"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Emerald Dragon Lizard"
+      ],
+      "related_terms": [
+        "三江并流",
+        "澜沧江"
+      ]
+    },
+    {
+      "term": "高黎贡羚牛",
+      "definition": "因怒江隔绝形成独特亚种，演化出棕褐色皮毛，生活在高黎贡山北部密林中。",
+      "labels": [
+        "生态",
+        "动物"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Gaoligong Takin"
+      ],
+      "related_terms": [
+        "三江并流",
+        "怒江"
+      ]
+    },
+    {
+      "term": "垫状点地梅",
+      "definition": "距离冰川最近的拓荒者，低矮致密的垫状结构为休眠期提供绝佳保护。",
+      "labels": [
+        "生态",
+        "植物"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Cushion Plant"
+      ],
+      "related_terms": [
+        "普若岗日大冰原"
+      ]
+    },
+    {
+      "term": "胡杨林",
+      "definition": "世界上面积最大的原始胡杨林坐落在塔里木河沿岸，是沙漠中最顽强的生命象征。",
+      "labels": [
+        "生态",
+        "植物"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Poplar Forest"
+      ],
+      "related_terms": [
+        "塔克拉玛干沙漠",
+        "塔里木河"
+      ]
+    },
+    {
+      "term": "兴安落叶松",
+      "definition": "大兴安岭最具优势的建群乔木，最高可达35米。",
+      "labels": [
+        "生态",
+        "植物"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [],
+      "related_terms": [
+        "大兴安岭"
+      ]
+    },
+    {
+      "term": "白色石蕊",
+      "definition": "驯鹿越冬的主要食物，由真菌和藻类共生而成，一年只能生长3-5mm。",
+      "labels": [
+        "生态",
+        "植物"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [],
+      "related_terms": [
+        "驯鹿",
+        "大兴安岭"
+      ]
+    },
+    {
+      "term": "塔黄",
+      "definition": "生长在高山草甸的植物，选择长出宝塔般的苞片保护娇弱的花蕊。",
+      "labels": [
+        "生态",
+        "植物"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_eco-explorer_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Tower Rhubarb"
+      ],
+      "related_terms": [
+        "雅鲁藏布大峡谷"
+      ]
+    },
+    {
+      "term": "BATNA",
+      "definition": "Best Alternative to a Negotiated Agreement，最佳替代方案。谈判中如果无法达成协议，你可以采取的最佳替代行动。是评估谈判立场和决定是否接受协议的关键指标。",
+      "labels": [
+        "谈判",
+        "谈判策略"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_negotiator_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "最佳替代方案",
+        "Best Alternative to a Negotiated Agreement"
+      ],
+      "related_terms": [
+        "ZOPA",
+        "谈判协议"
+      ]
+    },
+    {
+      "term": "ZOPA",
+      "definition": "Zone of Possible Agreement，协议区间。买卖双方都能接受的价格范围，是谈判达成协议的基础条件。",
+      "labels": [
+        "谈判",
+        "谈判策略"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_negotiator_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "协议区间",
+        "Zone of Possible Agreement"
+      ],
+      "related_terms": [
+        "BATNA"
+      ]
+    },
+    {
+      "term": "有限理性理论",
+      "definition": "由赫伯特·西蒙提出，认为人是有限理性的，大脑在认知和决策过程中存在系统的错误。丹尼尔·卡尼曼和理查德·赛勒因相关研究获诺贝尔经济学奖。",
+      "labels": [
+        "谈判",
+        "谈判心理学",
+        "认知偏差"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_negotiator_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Bounded Rationality"
+      ],
+      "related_terms": [
+        "认知偏差",
+        "决策错误"
+      ]
+    },
+    {
+      "term": "能力信任",
+      "definition": "信任的一个维度，指对对方是否有能力履行义务的信任。例如：销售渠道是否充足、技术能力是否达标。",
+      "labels": [
+        "信任类型"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_negotiator_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Competence Trust"
+      ],
+      "related_terms": [
+        "品格信任",
+        "信任重建"
+      ]
+    },
+    {
+      "term": "品格信任",
+      "definition": "信任的一个维度，指对对方是否诚实、有道德的信任。涉及隐瞒信息、欺诈、倾销旧产品等问题。",
+      "labels": [
+        "信任类型"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_negotiator_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Character Trust"
+      ],
+      "related_terms": [
+        "能力信任",
+        "信任重建"
+      ]
+    },
+    {
+      "term": "寄生式价值创造",
+      "definition": "谈判双方通过合作创造了价值，但实际上这些价值是从未参与谈判的第三方（如消费者、公众）那里转移过来的。这种协议通常被视为非法或不道德。",
+      "labels": [
+        "谈判",
+        "谈判策略"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_negotiator_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Parasitic Value Creation"
+      ],
+      "related_terms": [
+        "价值创造",
+        "谈判伦理"
+      ]
+    },
+    {
+      "term": "辛克莱定律",
+      "definition": "如果一个人的薪水是由他不理解一件事来决定的，那么就很难让他理解这件事。揭示了利益冲突对认知的影响。",
+      "labels": [
+        "谈判",
+        "认知偏差"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_negotiator_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Sinclair's Law"
+      ],
+      "related_terms": [
+        "利益冲突",
+        "代理人问题"
+      ]
+    },
+    {
+      "term": "代理人问题",
+      "definition": "代理人的利益（高佣金、快速成交）与委托人不一致，导致代理人在利益驱动下真心相信对自己有利的选择对客户也是最好的。",
+      "labels": [
+        "谈判",
+        "认知偏差"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_negotiator_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Agency Problem",
+        "Principal-Agent Problem"
+      ],
+      "related_terms": [
+        "利益冲突",
+        "辛克莱定律"
+      ]
+    },
+    {
+      "term": "哈佛谈判术",
+      "definition": "基于《Getting to Yes》的谈判方法论，核心原则包括：把人和问题分开、关注利益而非立场、创造双赢选项、坚持客观标准。",
+      "labels": [
+        "谈判",
+        "谈判策略"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_negotiator_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Harvard Negotiation Method",
+        "原则性谈判"
+      ],
+      "related_terms": [
+        "BATNA",
+        "利益谈判"
+      ]
+    },
+    {
+      "term": "循证谈判",
+      "definition": "以心理学和行为经济学对人的认知和行为规律的研究成果为基础的谈判方法论，观点有学术索引支持。",
+      "labels": [
+        "谈判",
+        "谈判策略"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_negotiator_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Evidence-Based Negotiation"
+      ],
+      "related_terms": [
+        "哈佛谈判术",
+        "有限理性理论"
+      ]
+    },
+    {
+      "term": "信息不对称",
+      "definition": "谈判中一方缺乏关键信息或对现实有误判，导致坚持错误的信念。解决方案包括引入中立的第三方提供客观信息。",
+      "labels": [
+        "谈判",
+        "谈判策略"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_negotiator_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Information Asymmetry"
+      ],
+      "related_terms": [
+        "非理性行为",
+        "谈判诊断"
+      ]
+    },
+    {
+      "term": "谈判道场",
+      "definition": "基于哈佛经典谈判术的AI谈判练习平台，帮助用户在安全的环境中提升谈判技巧。支持多种谈判场景和实时AI分析。",
+      "labels": [
+        "谈判",
+        "谈判场景"
+      ],
+      "source_chunks": [
+        "repo_Mingyu-Xu-98_negotiator_chunk_001"
+      ],
+      "source_chunk": "",
+      "aliases": [
+        "Deal Dojo"
+      ],
+      "related_terms": [
+        "哈佛谈判术",
+        "谈判训练"
+      ]
+    }
+  ]
+}

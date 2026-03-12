@@ -1,0 +1,20 @@
+[
+  {
+    "case_name": "员工诉讼案例",
+    "phenomenon": "员工坚信能赢官司，实际上缺乏关键信息",
+    "solution": "引入第三方审计机构提供客观信息",
+    "diagnosis_type": "信息不对称"
+  },
+  {
+    "case_name": "非营利组织案例",
+    "phenomenon": "反对粮食援助法案，因为会得罪长期盟友（农民）",
+    "solution": "识别潜在限制因素",
+    "diagnosis_type": "潜在限制"
+  },
+  {
+    "case_name": "莱斯利案例",
+    "phenomenon": "因假晋升感到羞辱而辞职，尽管薪水未变",
+    "solution": "识别并满足深层需求（尊严）",
+    "diagnosis_type": "潜在利益点"
+  }
+]

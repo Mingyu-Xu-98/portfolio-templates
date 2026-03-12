@@ -1,0 +1,507 @@
+{
+  "created_at": "2026-03-11T21:09:44.289233",
+  "updated_at": "2026-03-11T22:15:00.156002",
+  "total_skus": 49,
+  "total_characters": 83642,
+  "chunks_processed": [
+    "repo_Mingyu-Xu-98_eco-explorer_chunk_001",
+    "repo_Mingyu-Xu-98_negotiator_chunk_001",
+    "文因-业务-徐铭钰_chunk_001"
+  ],
+  "skus": [
+    {
+      "sku_id": "relational-knowledge-base",
+      "name": "relational-knowledge-base",
+      "classification": "relational",
+      "path": "skus/relational",
+      "source_chunk": "aggregated",
+      "character_count": 17759,
+      "description": "Domain label hierarchy and terminology glossary",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_001",
+      "name": "expedition-completion-workflow",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_001",
+      "source_chunk": "repo_Mingyu-Xu-98_eco-explorer_chunk_001",
+      "character_count": 759,
+      "description": "用于完成虚拟探险任务的分步流程，包含谜题解答和进度追踪",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_002",
+      "name": "knowledge-card-unlock-system",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_002",
+      "source_chunk": "repo_Mingyu-Xu-98_eco-explorer_chunk_001",
+      "character_count": 768,
+      "description": "根据用户行为自动解锁知识卡牌的触发机制和流程",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_003",
+      "name": "puzzle-solving-workflow",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_003",
+      "source_chunk": "repo_Mingyu-Xu-98_eco-explorer_chunk_001",
+      "character_count": 998,
+      "description": "处理四种谜题类型（问答、识别、推理、排序）的统一解答流程",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_004",
+      "name": "task-chain-completion-flow",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_004",
+      "source_chunk": "repo_Mingyu-Xu-98_eco-explorer_chunk_001",
+      "character_count": 983,
+      "description": "任务链的自动检测、手动触发和完成验证流程",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_005",
+      "name": "species-collection-workflow",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_005",
+      "source_chunk": "repo_Mingyu-Xu-98_eco-explorer_chunk_001",
+      "character_count": 719,
+      "description": "在地图探索中发现、查看和收集物种的完整流程",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_006",
+      "name": "quiz-challenge-workflow",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_006",
+      "source_chunk": "repo_Mingyu-Xu-98_eco-explorer_chunk_001",
+      "character_count": 699,
+      "description": "知识问答挑战的题目展示、作答和评分流程",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_007",
+      "name": "interactive-map-navigation",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_007",
+      "source_chunk": "repo_Mingyu-Xu-98_eco-explorer_chunk_001",
+      "character_count": 948,
+      "description": "交互式地图的缩放、标记点选择和环境信息展示流程",
+      "confidence": null
+    },
+    {
+      "sku_id": "meta-knowledge",
+      "name": "meta-knowledge",
+      "classification": "meta",
+      "path": "skus/meta",
+      "source_chunk": "aggregated",
+      "character_count": 1726,
+      "description": "SKU routing (mapping.md) and creative insights (eureka.md)",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_001",
+      "name": "negotiation-skills-index",
+      "classification": "factual",
+      "path": "skus/factual/sku_001",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 899,
+      "description": "谈判技能集的完整索引，包含7个核心技能模块",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_002",
+      "name": "irrational-behavior-diagnosis-cases",
+      "classification": "factual",
+      "path": "skus/factual/sku_002",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 419,
+      "description": "非理性行为诊断的三个典型案例",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_003",
+      "name": "trust-rebuilding-strategies",
+      "classification": "factual",
+      "path": "skus/factual/sku_003",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 291,
+      "description": "信任重建的两种维度及具体执行步骤",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_004",
+      "name": "disadvantaged-negotiation-strategies",
+      "classification": "factual",
+      "path": "skus/factual/sku_004",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 383,
+      "description": "劣势谈判的五种核心策略",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_005",
+      "name": "evidence-based-learning-categories",
+      "classification": "factual",
+      "path": "skus/factual/sku_005",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 576,
+      "description": "谈判学习资源的三类评估框架",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_006",
+      "name": "emotion-management-four-steps",
+      "classification": "factual",
+      "path": "skus/factual/sku_006",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 420,
+      "description": "应对愤怒的四步法",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_007",
+      "name": "threat-response-strategies",
+      "classification": "factual",
+      "path": "skus/factual/sku_007",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 624,
+      "description": "应对威胁的三大策略",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_008",
+      "name": "parasitic-value-examples",
+      "classification": "factual",
+      "path": "skus/factual/sku_008",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 378,
+      "description": "寄生式价值创造的案例和评估问题",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_009",
+      "name": "negotiation-decision-criteria",
+      "classification": "factual",
+      "path": "skus/factual/sku_009",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 500,
+      "description": "何时不应进行谈判的六种情况",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_010",
+      "name": "harvard-negotiation-principles",
+      "classification": "factual",
+      "path": "skus/factual/sku_010",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 322,
+      "description": "哈佛谈判术的四大核心原则",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_011",
+      "name": "project-tech-stack",
+      "classification": "factual",
+      "path": "skus/factual/sku_011",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 213,
+      "description": "谈判道场项目的技术栈信息",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_012",
+      "name": "api-endpoints",
+      "classification": "factual",
+      "path": "skus/factual/sku_012",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 924,
+      "description": "谈判道场项目的API接口列表",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_013",
+      "name": "hard-mode-scenarios",
+      "classification": "factual",
+      "path": "skus/factual/sku_013",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 697,
+      "description": "困难模式场景列表及其特点",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_014",
+      "name": "harvard-negotiation-cases-library",
+      "classification": "factual",
+      "path": "skus/factual/sku_014",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 787,
+      "description": "哈佛谈判术经典案例库，用于AI生成场景",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_015",
+      "name": "bounded-rationality-theory",
+      "classification": "factual",
+      "path": "skus/factual/sku_015",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 178,
+      "description": "有限理性理论的核心概念",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_016",
+      "name": "contribution-exaggeration-psychology",
+      "classification": "factual",
+      "path": "skus/factual/sku_016",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 191,
+      "description": "夸大贡献的心理倾向及解决方案",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_017",
+      "name": "profit-margin-calculation-example",
+      "classification": "factual",
+      "path": "skus/factual/sku_017",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 203,
+      "description": "劣势谈判中组合策略的利润率计算示例",
+      "confidence": null
+    },
+    {
+      "sku_id": "relational-knowledge-base",
+      "name": "relational-knowledge-base",
+      "classification": "relational",
+      "path": "skus/relational",
+      "source_chunk": "aggregated",
+      "character_count": 25963,
+      "description": "Domain label hierarchy and terminology glossary",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_008",
+      "name": "diagnosing-negotiation-issues",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_008",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 768,
+      "description": "诊断谈判中的非理性行为和信任问题。当对方行为看似违背自身利益、拒绝合理提案、或双方互不信任时使用此技能。",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_009",
+      "name": "disadvantaged-negotiation-strategies",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_009",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 643,
+      "description": "在谈判处于劣势时使用的策略组合。当己方BATNA较差、对方处于强势地位、或被迫进行价格竞标时使用此技能。",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_010",
+      "name": "managing-emotions-and-threats",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_010",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 642,
+      "description": "管理谈判中的情绪、威胁和面子问题。当对手表现出愤怒、发出威胁或最后通牒、或可能感到丢面子时使用此技能。",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_011",
+      "name": "negotiation-cognitive-biases-and-ethics",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_011",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 609,
+      "description": "识别和管理谈判中的认知偏差与伦理问题。当需要评估谈判中的道德行为、利益冲突、价值创造来源或分配团队贡献时使用此技能。",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_012",
+      "name": "negotiation-decision-and-improvement",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_012",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 551,
+      "description": "评估是否应该进行谈判，以及通过内归因持续提升谈判能力。当面临谈判决策点、需要判断谈判时机或回顾谈判结果寻求改进时使用此技能。",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_013",
+      "name": "evidence-based-learning-strategy",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_013",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 484,
+      "description": "指导如何选择谈判学习资源和制定有效的学习计划。当需要评估谈判书籍质量、理解循证谈判方法论特点或制定学习策略时使用此技能。",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_014",
+      "name": "negotiation-fundamentals-and-psychology",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_014",
+      "source_chunk": "repo_Mingyu-Xu-98_negotiator_chunk_001",
+      "character_count": 479,
+      "description": "理解谈判的普遍性本质和心理学基础，适用于所有需要沟通互动的场景。当需要建立正确的谈判认知、理解沟通障碍根源或接受人类认知局限性时使用此技能。",
+      "confidence": null
+    },
+    {
+      "sku_id": "meta-knowledge",
+      "name": "meta-knowledge",
+      "classification": "meta",
+      "path": "skus/meta",
+      "source_chunk": "aggregated",
+      "character_count": 5854,
+      "description": "SKU routing (mapping.md) and creative insights (eureka.md)",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_018",
+      "name": "personal_basic_info",
+      "classification": "factual",
+      "path": "skus/factual/sku_018",
+      "source_chunk": "文因-业务-徐铭钰_chunk_001",
+      "character_count": 169,
+      "description": "徐铭钰的个人基本信息，包括身份、联系方式及状态",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_019",
+      "name": "education_background",
+      "classification": "factual",
+      "path": "skus/factual/sku_019",
+      "source_chunk": "文因-业务-徐铭钰_chunk_001",
+      "character_count": 590,
+      "description": "徐铭钰的教育经历，包含硕士和本科阶段的详细信息",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_020",
+      "name": "skills_and_expertise",
+      "classification": "factual",
+      "path": "skus/factual/sku_020",
+      "source_chunk": "文因-业务-徐铭钰_chunk_001",
+      "character_count": 317,
+      "description": "徐铭钰的技能特长，涵盖数据分析、金融平台及大模型应用",
+      "confidence": null
+    },
+    {
+      "sku_id": "sku_021",
+      "name": "work_experience",
+      "classification": "factual",
+      "path": "skus/factual/sku_021",
+      "source_chunk": "文因-业务-徐铭钰_chunk_001",
+      "character_count": 2375,
+      "description": "徐铭钰的工作经历，包含职位、时间及项目详情",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_015",
+      "name": "data-processing-pipeline",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_015",
+      "source_chunk": "文因-业务-徐铭钰_chunk_001",
+      "character_count": 444,
+      "description": "适用于需要从配置文件批量读取、清洗数据并导入数据库的自动化数据处理场景",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_016",
+      "name": "indicator-system-construction",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_016",
+      "source_chunk": "文因-业务-徐铭钰_chunk_001",
+      "character_count": 425,
+      "description": "适用于构建数据指标体系，明确指标定义、计算逻辑和数据来源的场景",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_017",
+      "name": "data-analysis-workflow",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_017",
+      "source_chunk": "文因-业务-徐铭钰_chunk_001",
+      "character_count": 436,
+      "description": "适用于需要进行数据查询、清洗、分析和可视化的完整分析流程",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_018",
+      "name": "product-design-from-scratch",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_018",
+      "source_chunk": "文因-业务-徐铭钰_chunk_001",
+      "character_count": 508,
+      "description": "适用于从零开始搭建产品框架、设计功能并落地的完整产品开发流程",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_019",
+      "name": "competitive-product-analysis",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_019",
+      "source_chunk": "文因-业务-徐铭钰_chunk_001",
+      "character_count": 389,
+      "description": "适用于需要对竞品进行系统化分析，输出分析报告的场景",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_020",
+      "name": "knowledge-base-project-delivery",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_020",
+      "source_chunk": "文因-业务-徐铭钰_chunk_001",
+      "character_count": 480,
+      "description": "适用于知识库建设类项目的需求分析、设计到上线的完整交付流程",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_021",
+      "name": "llm-application-development",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_021",
+      "source_chunk": "文因-业务-徐铭钰_chunk_001",
+      "character_count": 480,
+      "description": "适用于大模型应用系统的架构设计、提示工程优化和应用功能实现",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_022",
+      "name": "sop-documentation",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_022",
+      "source_chunk": "文因-业务-徐铭钰_chunk_001",
+      "character_count": 409,
+      "description": "适用于整理制定业务分析和提示工程的标准操作流程和文档模板",
+      "confidence": null
+    },
+    {
+      "sku_id": "skill_023",
+      "name": "user-behavior-data-analysis",
+      "classification": "procedural",
+      "path": "skus/procedural/skill_023",
+      "source_chunk": "文因-业务-徐铭钰_chunk_001",
+      "character_count": 471,
+      "description": "适用于分析用户行为数据、发现异常并进行归因分析的场景",
+      "confidence": null
+    },
+    {
+      "sku_id": "meta-knowledge",
+      "name": "meta-knowledge",
+      "classification": "meta",
+      "path": "skus/meta",
+      "source_chunk": "aggregated",
+      "character_count": 6792,
+      "description": "SKU routing (mapping.md) and creative insights (eureka.md)",
+      "confidence": null
+    }
+  ],
+  "factual_count": 21,
+  "relational_count": 2,
+  "procedural_count": 23,
+  "meta_count": 3
+}

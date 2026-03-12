@@ -1,0 +1,42 @@
+[
+  {
+    "scenario": "二手车谈判",
+    "max_rounds": 8,
+    "challenge": "精明车商，目标价更低"
+  },
+  {
+    "scenario": "薪资谈判（困难）",
+    "max_rounds": 6,
+    "challenge": "上司会用各种策略压价"
+  },
+  {
+    "scenario": "供应商涨价（困难）",
+    "max_rounds": 6,
+    "challenge": "面临断供威胁"
+  },
+  {
+    "scenario": "橙子之争（限时）",
+    "max_rounds": 5,
+    "challenge": "必须快速发现利益"
+  },
+  {
+    "scenario": "项目延期（困难）",
+    "max_rounds": 6,
+    "challenge": "CEO明天要演示"
+  },
+  {
+    "scenario": "客户投诉（困难）",
+    "max_rounds": 5,
+    "challenge": "KOL正在直播维权"
+  },
+  {
+    "scenario": "劳资谈判（罢工倒计时）",
+    "max_rounds": 8,
+    "challenge": "48小时后罢工生效"
+  },
+  {
+    "scenario": "医疗纠纷（困难）",
+    "max_rounds": 6,
+    "challenge": "家属拉横幅，记者到场"
+  }
+]
