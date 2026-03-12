@@ -73,6 +73,15 @@ export async function POST(req: NextRequest) {
     // 3. Write to disk
     await writeFilesToDisk(files);
 
+    // 3.5. Copy .env.local so the generated site can access API keys
+    const envSrc = path.join(process.cwd(), ".env.local");
+    const envDst = path.join(OUTPUT_DIR, ".env.local");
+    try {
+      await fs.copyFile(envSrc, envDst);
+    } catch {
+      // .env.local may not exist — that's fine
+    }
+
     // 4. npm install (always run to pick up any new dependencies)
     await npmInstall();
 

@@ -23,7 +23,7 @@ const STYLE_LAYOUT_MAP: Record<string, LayoutType> = {
   "gradient-mesh": "z-shape",
   "neo-tokyo": "fixed-nav",
   "tpl-business": "card-grid",
-  "tpl-resume-bold": "split-screen",
+  "tpl-resume-bold": "card-grid",
   "tpl-resume-dark": "hidden-nav",
   custom: "card-grid",
 };
@@ -329,15 +329,6 @@ export const ALL_THEME_OPTIONS: QuestionOption<ThemeStyle>[] = [
     descEn: "Purple glassmorphism, bento grid, typewriter hero, professional",
     preview: "linear-gradient(135deg, #0a0a1a 0%, #1a1040 50%, #6c63ff 200%)",
   },
-{
-    value: "tpl-resume-bold",
-    icon: "style-tpl-bold",
-    label: "大胆简历",
-    labelEn: "Bold Resume",
-    desc: "粗边框、硬阴影、粉青撞色、浮动标签",
-    descEn: "Thick borders, hard shadows, pink+cyan clash, floating tags",
-    preview: "linear-gradient(135deg, #FDF2F8 0%, #EC4899 50%, #0891B2 100%)",
-  },
   {
     value: "tpl-resume-dark",
     icon: "style-tpl-dark",
@@ -346,6 +337,15 @@ export const ALL_THEME_OPTIONS: QuestionOption<ThemeStyle>[] = [
     desc: "超暗背景、药丸导航、氛围光斑、噪点纹理",
     descEn: "Ultra-dark background, pill nav, ambient blobs, grain texture",
     preview: "linear-gradient(135deg, #050506 0%, #111118 50%, #5E6AD2 200%)",
+  },
+  {
+    value: "tpl-resume-bold",
+    icon: "style-tpl-bold",
+    label: "撞色波普简历",
+    labelEn: "Pop Clash Resume",
+    desc: "粗边框、硬阴影、粉青撞色、浮动标签",
+    descEn: "Thick borders, hard shadows, pink+cyan clash, floating tags",
+    preview: "linear-gradient(135deg, #FDF2F8 0%, #EC4899 50%, #0891B2 100%)",
   },
   {
     value: "custom",

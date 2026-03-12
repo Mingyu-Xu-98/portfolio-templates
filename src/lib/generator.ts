@@ -173,7 +173,7 @@ function genLayout(data: WorkspaceData, theme: ThemeStyle, features: FeatureFlag
       nature: "https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap",
       "gradient-mesh": "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap",
       "neo-tokyo": "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap",
-      "tpl-resume-bold": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap",
+      "tpl-resume-bold": "https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
       "tpl-resume-dark": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap",
     };
     const url = fontMap[theme];
@@ -457,12 +457,12 @@ const STYLE_CONFIG: Record<ThemeStyle, {
 "tpl-resume-bold": {
     colors: {
       bg: "#FDF2F8", "bg-card": "#ffffff", "bg-card-solid": "#ffffff",
-      "bg-tag": "rgba(236,72,153,0.08)", text: "#1a1a1a", "text-muted": "#6b7280",
+      "bg-tag": "rgba(236,72,153,0.08)", text: "#0F172A", "text-muted": "#64748B",
       accent: "#EC4899", "accent-soft": "rgba(236,72,153,0.1)", "accent-alt": "#0891B2",
-      line: "rgba(0,0,0,0.12)", green: "#0891B2",
+      line: "rgba(0,0,0,0.12)", green: "#34D399",
     },
-    fontSans: '"Inter", -apple-system, sans-serif',
-    fontHeading: '"Inter", -apple-system, sans-serif',
+    fontSans: '"Manrope", -apple-system, sans-serif',
+    fontHeading: '"Syne", -apple-system, sans-serif',
     borderRadius: "0px",
   },
   "tpl-resume-dark": {
@@ -1151,41 +1151,310 @@ function genAnimationCSS(theme: ThemeStyle): string {
 `;
   } else if (theme === "tpl-resume-bold") {
     bgEffects = `
+/* ===== Bold Resume — Animated Background ===== */
 .bold-resume-bg {
-  position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0; overflow: hidden;
 }
-.bold-resume-bg .shape { position: absolute; }
-.bold-resume-bg .shape-1 {
-  width: 400px; height: 400px; background: rgba(236,72,153,0.06);
-  top: -10%; right: -10%; border-radius: 30% 70% 70% 30%;
-  animation: floatBold 12s ease-in-out infinite;
+.bold-resume-bg .shape {
+  position: absolute; border-radius: 50%; opacity: 0.08;
+  animation: floatBold 20s infinite ease-in-out;
 }
-.bold-resume-bg .shape-2 {
-  width: 300px; height: 300px; background: rgba(8,145,178,0.06);
-  bottom: -5%; left: -5%; border-radius: 50%;
-  animation: floatBold 10s ease-in-out infinite reverse;
+.bold-resume-bg .shape-1 { width: 400px; height: 400px; background: var(--color-accent); top: -100px; left: -100px; }
+.bold-resume-bg .shape-2 { width: 300px; height: 300px; background: var(--color-accent-alt); top: 50%; right: -80px; animation-delay: -5s; animation-duration: 25s; }
+.bold-resume-bg .shape-3 { width: 200px; height: 200px; background: #FBBF24; bottom: 10%; left: 20%; animation-delay: -10s; animation-duration: 18s; }
+@keyframes floatBold {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -40px) scale(1.05); }
+  50% { transform: translate(-20px, 20px) scale(0.95); }
+  75% { transform: translate(15px, 35px) scale(1.02); }
 }
-.bold-resume-bg .shape-3 {
-  width: 200px; height: 200px; background: rgba(236,72,153,0.04);
-  top: 40%; left: 50%; border-radius: 20%; transform: rotate(45deg);
-  animation: floatBold 14s ease-in-out infinite;
-}
-@keyframes floatBold { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-20px) rotate(3deg); } }
 
-/* Bold resume — thick borders, hard shadows */
-.section-heading {
-  font-size: 1.5rem !important; font-weight: 900 !important; text-transform: uppercase !important;
-  letter-spacing: 0.05em; border-bottom: 4px solid var(--color-accent); padding-bottom: 0.5rem;
-  display: inline-block; margin-bottom: 1.5rem !important;
+/* ===== Bold Resume — Navigation ===== */
+.bold-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(253, 242, 248, 0.85); backdrop-filter: blur(16px);
+  border-bottom: 3px solid var(--color-text); padding: 0 40px;
+  display: flex; justify-content: space-between; align-items: center; height: 64px;
 }
-.badge {
-  border: 2px solid var(--color-text) !important; border-radius: 0 !important;
-  font-weight: 600 !important; box-shadow: 2px 2px 0 var(--color-accent);
+[data-theme="dark"] .bold-nav { background: rgba(15, 23, 42, 0.85); }
+.bold-nav .logo {
+  font-family: var(--font-heading); font-weight: 800; font-size: 1.4rem;
+  color: var(--color-accent); letter-spacing: -1px;
 }
-.contact-icon {
-  border: 2px solid var(--color-text) !important; box-shadow: 3px 3px 0 var(--color-accent);
+.bold-nav .nav-links { display: flex; gap: 8px; list-style: none; }
+.bold-nav .nav-links a, .bold-nav .nav-links button {
+  font-family: var(--font-heading); font-weight: 600; font-size: 0.85rem;
+  text-decoration: none; color: var(--color-text); padding: 8px 16px;
+  border: 2px solid transparent; transition: all 0.2s;
+  text-transform: uppercase; letter-spacing: 1px; background: none; cursor: pointer;
 }
-.contact-icon:hover { box-shadow: 3px 3px 0 var(--color-accent-alt); }
+.bold-nav .nav-links a:hover, .bold-nav .nav-links button:hover {
+  border: 2px solid var(--color-text); background: #FBBF24;
+  box-shadow: 4px 4px 0px var(--color-text); transform: translate(-2px, -2px);
+}
+@media (max-width: 768px) { .bold-nav .nav-links { display: none; } }
+
+/* ===== Bold Resume — Buttons ===== */
+.btn-bold {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-heading); font-weight: 700; font-size: 0.95rem;
+  padding: 14px 28px; border: 4px solid var(--color-text);
+  text-decoration: none; cursor: pointer; transition: all 0.15s;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.btn-bold:active { transform: translate(4px, 4px); box-shadow: none; }
+.btn-bold-primary {
+  background: var(--color-accent); color: #fff;
+  box-shadow: 6px 6px 0px var(--color-text);
+}
+.btn-bold-primary:hover { background: #DB2777; transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--color-text); }
+.btn-bold-outline {
+  background: #fff; color: var(--color-text);
+  box-shadow: 6px 6px 0px var(--color-text);
+}
+.btn-bold-outline:hover { background: #06B6D4; color: #fff; transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--color-text); }
+
+/* ===== Bold Resume — Hero ===== */
+.bold-hero {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
+  align-items: center; min-height: 80vh; padding: 40px 0;
+}
+.bold-hero-text { animation: boldSlideLeft 0.8s ease-out; }
+.bold-hero-label {
+  display: inline-block; font-family: 'JetBrains Mono', var(--font-mono, monospace);
+  font-size: 0.8rem; color: #fff; background: var(--color-text);
+  padding: 6px 14px; border: 4px solid var(--color-text);
+  margin-bottom: 20px; transform: rotate(-2deg);
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.bold-hero h1 {
+  font-family: var(--font-heading); font-size: 4.5rem; font-weight: 800;
+  line-height: 1; letter-spacing: -3px; margin-bottom: 20px;
+}
+.bold-hero .highlight {
+  color: var(--color-accent); position: relative; display: inline-block;
+}
+.bold-hero .highlight::after {
+  content: ''; position: absolute; bottom: 4px; left: -4px; right: -4px;
+  height: 14px; background: #FBBF24; opacity: 0.5; z-index: -1; transform: rotate(-1deg);
+}
+.bold-hero-subtitle {
+  font-size: 1.15rem; color: var(--color-text-muted); line-height: 1.7;
+  margin-bottom: 32px; max-width: 460px;
+}
+.bold-hero-visual {
+  position: relative; display: flex; justify-content: center; align-items: center;
+  animation: boldSlideRight 0.8s ease-out;
+}
+.avatar-frame {
+  width: 340px; height: 340px;
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-alt));
+  border: 4px solid var(--color-text); box-shadow: 6px 6px 0px var(--color-text);
+  display: flex; justify-content: center; align-items: center;
+  transform: rotate(3deg); position: relative; overflow: hidden;
+}
+.avatar-frame .avatar-text {
+  font-family: var(--font-heading); font-weight: 800; color: #fff;
+  font-size: 6rem; letter-spacing: -4px; text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+}
+.avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
+.floating-tag {
+  position: absolute; font-family: 'JetBrains Mono', var(--font-mono, monospace);
+  font-size: 0.75rem; font-weight: 500; padding: 8px 14px;
+  border: 3px solid var(--color-text); box-shadow: 4px 4px 0px var(--color-text);
+  animation: bobble 3s infinite ease-in-out; white-space: nowrap;
+}
+.floating-tag.tag-1 { top: -10px; right: -30px; background: #FBBF24; transform: rotate(5deg); }
+.floating-tag.tag-2 { bottom: 40px; left: -50px; background: #34D399; animation-delay: -1s; transform: rotate(-3deg); }
+.floating-tag.tag-3 { bottom: -15px; right: 20px; background: #A78BFA; color: #fff; animation-delay: -2s; transform: rotate(2deg); }
+@keyframes bobble { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes boldSlideLeft { from { opacity: 0; transform: translateX(-60px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes boldSlideRight { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
+@media (max-width: 768px) {
+  .bold-hero { grid-template-columns: 1fr; text-align: center; min-height: auto; padding: 20px 0; }
+  .bold-hero h1 { font-size: 3rem; }
+  .bold-hero-subtitle { margin: 0 auto 32px; }
+  .bold-hero-visual { order: -1; }
+  .avatar-frame { width: 240px; height: 240px; }
+  .avatar-frame .avatar-text { font-size: 4rem; }
+  .floating-tag.tag-2 { left: -20px; }
+}
+
+/* ===== Bold Resume — Marquee ===== */
+.bold-marquee-wrapper {
+  overflow: hidden; border-top: 3px solid var(--color-text);
+  border-bottom: 3px solid var(--color-text); background: var(--color-text);
+  padding: 14px 0; margin-bottom: 80px;
+}
+.bold-marquee { display: flex; animation: boldMarquee 30s linear infinite; width: max-content; }
+.bold-marquee span {
+  font-family: var(--font-heading); font-weight: 800; font-size: 1.1rem;
+  color: #fff; text-transform: uppercase; letter-spacing: 4px;
+  padding: 0 40px; white-space: nowrap;
+}
+[data-theme="dark"] .bold-marquee span { color: var(--color-bg); }
+.bold-marquee .sep { color: var(--color-accent); font-size: 1.4rem; padding: 0 20px; }
+@keyframes boldMarquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* ===== Bold Resume — Section Headers ===== */
+.bold-section-header { display: flex; align-items: center; gap: 16px; margin-bottom: 40px; }
+.bold-section-number {
+  font-family: var(--font-heading); font-weight: 800; font-size: 3rem;
+  color: var(--color-accent); opacity: 0.3; line-height: 1;
+}
+.bold-section-title {
+  font-family: var(--font-heading); font-weight: 800; font-size: 2.2rem;
+  letter-spacing: -1px; position: relative;
+}
+.bold-section-title::after {
+  content: ''; display: block; width: 60px; height: 5px;
+  background: var(--color-accent); margin-top: 8px;
+}
+
+/* ===== Bold Resume — Experience Cards ===== */
+.bold-timeline { display: flex; flex-direction: column; gap: 28px; }
+.exp-card {
+  background: var(--color-bg-card); border: 4px solid var(--color-text);
+  box-shadow: 6px 6px 0px var(--color-text); padding: 32px;
+  position: relative; transition: all 0.2s;
+}
+.exp-card:hover { transform: translate(-4px, -4px); box-shadow: 10px 10px 0 var(--color-text); }
+.exp-card-year {
+  position: absolute; top: -14px; left: 24px;
+  font-family: 'JetBrains Mono', var(--font-mono, monospace); font-size: 0.75rem; font-weight: 500;
+  background: var(--color-accent-alt); color: #fff;
+  padding: 4px 12px; border: 3px solid var(--color-text); letter-spacing: 1px;
+}
+.exp-role { font-family: var(--font-heading); font-weight: 700; font-size: 1.3rem; letter-spacing: -0.5px; }
+.exp-company {
+  font-family: 'JetBrains Mono', var(--font-mono, monospace); font-size: 0.85rem;
+  color: var(--color-accent); font-weight: 500;
+}
+.exp-desc { color: var(--color-text-muted); line-height: 1.7; font-size: 0.95rem; margin: 12px 0 16px; }
+.exp-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.exp-tag {
+  font-family: 'JetBrains Mono', var(--font-mono, monospace); font-size: 0.7rem;
+  padding: 4px 10px; border: 2px solid var(--color-text); background: var(--color-bg);
+  font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+/* ===== Bold Resume — Skills Cards ===== */
+.bold-skills-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px;
+}
+.skill-card {
+  background: var(--color-bg-card); border: 4px solid var(--color-text);
+  box-shadow: 6px 6px 0px var(--color-text); padding: 28px;
+  transition: all 0.2s; position: relative; overflow: hidden;
+}
+.skill-card:hover { transform: translate(-3px, -3px); box-shadow: 9px 9px 0 var(--color-text); }
+.skill-card h3 {
+  font-family: var(--font-heading); font-weight: 700; font-size: 1.15rem;
+  margin-bottom: 12px; letter-spacing: -0.5px;
+}
+.skill-list {
+  list-style: none; display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 0; margin: 0 0 16px;
+}
+.skill-list li {
+  font-family: 'JetBrains Mono', var(--font-mono, monospace); font-size: 0.7rem;
+  padding: 4px 10px; background: var(--color-bg); border: 2px solid var(--color-line);
+  font-weight: 500;
+}
+.skill-bar-item { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.skill-bar-label {
+  font-family: 'JetBrains Mono', var(--font-mono, monospace); font-size: 0.72rem;
+  font-weight: 500; min-width: 80px; text-align: right; color: var(--color-text-muted);
+}
+.skill-bar-track {
+  flex: 1; height: 14px; background: var(--color-bg);
+  border: 2px solid var(--color-text); position: relative; overflow: hidden;
+}
+.skill-bar-fill { height: 100%; transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); width: 0; }
+
+/* ===== Bold Resume — Projects ===== */
+.bold-projects-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+.project-card {
+  background: var(--color-bg-card); border: 4px solid var(--color-text);
+  box-shadow: 6px 6px 0px var(--color-text); overflow: hidden; transition: all 0.2s;
+}
+.project-card:hover { transform: translate(-4px, -4px) rotate(-0.5deg); box-shadow: 10px 10px 0 var(--color-text); }
+.project-preview {
+  height: 180px; display: flex; justify-content: center; align-items: center;
+  font-family: var(--font-heading); font-weight: 800; font-size: 3rem;
+  color: #fff; letter-spacing: -2px; position: relative; overflow: hidden;
+}
+.project-preview .pattern {
+  position: absolute; inset: 0; opacity: 0.15;
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.3) 20px, rgba(255,255,255,0.3) 40px);
+}
+.project-card:nth-child(1) .project-preview { background: linear-gradient(135deg, #EC4899, #9333EA); }
+.project-card:nth-child(2) .project-preview { background: linear-gradient(135deg, #0891B2, #0284C7); }
+.project-card:nth-child(3) .project-preview { background: linear-gradient(135deg, #FB923C, #EC4899); }
+.project-card:nth-child(4) .project-preview { background: linear-gradient(135deg, #0F172A, #0891B2); }
+.project-card:nth-child(5) .project-preview { background: linear-gradient(135deg, #A78BFA, #6366f1); }
+.project-card:nth-child(6) .project-preview { background: linear-gradient(135deg, #34D399, #059669); }
+.project-info { padding: 24px; }
+.project-info h3 {
+  font-family: var(--font-heading); font-weight: 700; font-size: 1.15rem;
+  margin-bottom: 8px; letter-spacing: -0.5px;
+}
+.project-info p { color: var(--color-text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 14px; }
+@media (max-width: 768px) { .bold-projects-grid { grid-template-columns: 1fr; } }
+
+/* ===== Bold Resume — Education ===== */
+.edu-card {
+  background: var(--color-bg-card); border: 4px solid var(--color-text);
+  box-shadow: 6px 6px 0px var(--color-text); padding: 32px;
+  display: flex; gap: 24px; align-items: center; transition: all 0.2s;
+}
+.edu-card:hover { transform: translate(-3px, -3px); box-shadow: 9px 9px 0 var(--color-text); }
+.edu-icon {
+  width: 72px; height: 72px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--color-accent-alt), var(--color-accent));
+  border: 3px solid var(--color-text); display: flex;
+  justify-content: center; align-items: center;
+  font-family: var(--font-heading); font-weight: 800; font-size: 1.3rem; color: #fff;
+}
+.edu-info h3 { font-family: var(--font-heading); font-weight: 700; font-size: 1.2rem; letter-spacing: -0.5px; }
+.edu-info .edu-school {
+  font-family: 'JetBrains Mono', var(--font-mono, monospace); font-size: 0.85rem;
+  color: var(--color-accent); font-weight: 500; margin: 4px 0;
+}
+.edu-info .edu-detail { color: var(--color-text-muted); font-size: 0.9rem; }
+@media (max-width: 768px) { .edu-card { flex-direction: column; text-align: center; } }
+
+/* ===== Bold Resume — Contact ===== */
+.bold-contact { text-align: center; padding: 60px 0; }
+.bold-contact h2 {
+  font-family: var(--font-heading); font-weight: 800; font-size: 3rem;
+  letter-spacing: -2px; margin-bottom: 16px;
+}
+.bold-contact p { color: var(--color-text-muted); font-size: 1.05rem; margin-bottom: 36px; }
+.bold-contact-links { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+.contact-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'JetBrains Mono', var(--font-mono, monospace); font-size: 0.85rem; font-weight: 500;
+  padding: 12px 24px; background: var(--color-bg-card); border: 4px solid var(--color-text);
+  box-shadow: 4px 4px 0px var(--color-text); text-decoration: none;
+  color: var(--color-text); transition: all 0.15s;
+}
+.contact-chip:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--color-text); background: #FBBF24; }
+@media (max-width: 768px) { .bold-contact h2 { font-size: 2.2rem; } }
+
+/* ===== Bold Resume — Footer ===== */
+.bold-footer {
+  text-align: center; padding: 32px; border-top: 3px solid var(--color-text);
+  font-family: 'JetBrains Mono', var(--font-mono, monospace); font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* ===== Bold Resume — Scroll Reveal ===== */
+.bold-reveal { opacity: 0; transform: translateY(40px); transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+.bold-reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* Hide generic card/badge/section-heading in bold resume */
 .avatar-glow { display: none; }
 `;
   } else if (theme === "tpl-resume-dark") {
@@ -1377,6 +1646,9 @@ function genChatCSS(): string {
 // ---- Page Generation ----
 
 function genPage(data: WorkspaceData, layout: LayoutType, theme: ThemeStyle, features: FeatureFlags): string {
+  // Theme-specific page generators
+  if (theme === "tpl-resume-bold") return genBoldResumePage(data, features);
+
   const family = LAYOUT_FAMILY[layout] || "single";
   switch (family) {
     case "sidebar": return genSidebarPage(data, layout, theme, features);
@@ -1385,6 +1657,220 @@ function genPage(data: WorkspaceData, layout: LayoutType, theme: ThemeStyle, fea
     case "single":
     default:        return genSingleColumnPage(data, layout, theme, features);
   }
+}
+
+/**
+ * Dedicated page generator for tpl-resume-bold theme.
+ * Produces the specific layout from the bold resume template:
+ * nav → hero (2-col with avatar frame + floating tags) → marquee → experience → skills → projects → education → contact → footer
+ */
+function genBoldResumePage(data: WorkspaceData, features: FeatureFlags): string {
+  const imports = [
+    `"use client";`,
+    `import { useEffect, useRef } from "react";`,
+    `import { useLanguage } from "@/components/LanguageProvider";`,
+    `import Image from "next/image";`,
+    features.darkMode ? `import ThemeToggle from "@/components/ThemeToggle";` : "",
+    features.chatbot ? `import ChatBot from "@/components/ChatBot";` : "",
+    features.share ? `import SharePoster from "@/components/SharePoster";` : "",
+  ].filter(Boolean).join("\n");
+
+  // Build marquee items from skills
+  const allSkills = data.skills.flatMap(g => g.skills).slice(0, 10);
+  const marqueeItems = allSkills.map(s => `<span>${s}</span><span className="sep">/</span>`).join("\n              ");
+
+  // Build floating tags (top 3 skill categories or tags)
+  const floatingTags = data.tags.slice(0, 3);
+
+  // Build initials for avatar fallback
+  const initials = (data.nameEn || data.name).split(/\\s+/).map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
+
+  return `${imports}
+
+export default function Home() {
+  const { lang, t, toggle } = useLanguage();
+  const revealRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          // Animate skill bars
+          entry.target.querySelectorAll<HTMLElement>(".skill-bar-fill").forEach(bar => {
+            if (bar.dataset.width) bar.style.width = bar.dataset.width;
+          });
+        }
+      });
+    }, { threshold: 0.15 });
+    revealRef.current?.querySelectorAll(".bold-reveal").forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div className="min-h-screen relative bg-bg text-text" ref={revealRef}>
+      {/* Background Shapes */}
+      <div className="bold-resume-bg"><div className="shape shape-1" /><div className="shape shape-2" /><div className="shape shape-3" /></div>
+
+      {/* Navigation */}
+      <nav className="bold-nav">
+        <div className="logo">{lang === "zh" ? "${data.name}" : "${data.nameEn || data.name}"}</div>
+        <ul className="nav-links">
+          <li><a href="#experience">{t.nav.timeline}</a></li>
+          <li><a href="#skills">{t.nav.skills}</a></li>
+          <li><a href="#projects">{t.nav.projects}</a></li>
+          <li><a href="#education">{t.nav.education}</a></li>
+          <li><a href="#contact">{t.nav.contact}</a></li>
+          <li><button onClick={toggle}>{lang === "zh" ? "EN" : "\\u4e2d"}</button></li>
+          ${features.darkMode ? `<li><ThemeToggle /></li>` : ""}
+        </ul>
+      </nav>
+
+      {/* Main */}
+      <main className="relative z-[1] max-w-[1100px] mx-auto px-6 pt-[100px] pb-[60px]">
+
+        {/* Hero */}
+        <section className="bold-hero">
+          <div className="bold-hero-text">
+            <span className="bold-hero-label">{lang === "zh" ? "// \\u5F00\\u653E\\u5408\\u4F5C" : "// Available for hire"}</span>
+            <h1>
+              {lang === "zh" ? "\\u55E8\\uFF0C\\u6211\\u662F" : "Hey, I'm"}<br />
+              <span className="highlight">{lang === "zh" ? "${data.name}" : "${data.nameEn || data.name}"}</span>
+            </h1>
+            <p className="bold-hero-subtitle">
+              {lang === "zh" ? "${data.title}" : "${data.titleEn || data.title}"}
+            </p>
+            <div className="flex gap-4 flex-wrap">
+              <a href="#contact" className="btn-bold btn-bold-primary">{t.nav.contact}</a>
+              <a href="#projects" className="btn-bold btn-bold-outline">{t.nav.projects}</a>
+            </div>
+          </div>
+          <div className="bold-hero-visual">
+            <div className="avatar-frame">
+              <Image src="/images/avatar.png" alt="" width={340} height={340} className="avatar-frame-img" style={{width:"100%",height:"100%",objectFit:"cover"}} unoptimized onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; (e.target as HTMLImageElement).nextElementSibling?.classList.remove("hidden"); }} />
+              <span className="avatar-text hidden">${initials}</span>
+              <div className="floating-tag tag-1">${floatingTags[0] || data.tags[0] || ""}</div>
+              <div className="floating-tag tag-2">${floatingTags[1] || data.tags[1] || ""}</div>
+              <div className="floating-tag tag-3">${floatingTags[2] || data.tags[2] || ""}</div>
+            </div>
+          </div>
+        </section>
+
+        {/* Marquee */}
+        <div className="bold-marquee-wrapper">
+          <div className="bold-marquee">
+            ${marqueeItems}
+            ${marqueeItems}
+          </div>
+        </div>
+
+        {/* Experience */}
+        <section id="experience" className="bold-reveal mb-20">
+          <div className="bold-section-header">
+            <span className="bold-section-number">01</span>
+            <h2 className="bold-section-title">{t.sections.timeline}</h2>
+          </div>
+          <div className="bold-timeline">
+            {t.timeline.map((item, i) => (
+              <div key={i} className="exp-card">
+                <span className="exp-card-year">{item.date}</span>
+                <div className="exp-role">{item.title}</div>
+                <p className="exp-desc">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Skills */}
+        <section id="skills" className="bold-reveal mb-20">
+          <div className="bold-section-header">
+            <span className="bold-section-number">02</span>
+            <h2 className="bold-section-title">{t.sections.skills}</h2>
+          </div>
+          <div className="bold-skills-grid">
+            {t.skills.map((group, i) => (
+              <div key={i} className="skill-card">
+                <h3>{group.title}</h3>
+                <ul className="skill-list">
+                  {group.skills.map((s) => (<li key={s}>{s}</li>))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Projects */}
+        <section id="projects" className="bold-reveal mb-20">
+          <div className="bold-section-header">
+            <span className="bold-section-number">03</span>
+            <h2 className="bold-section-title">{t.sections.projects}</h2>
+          </div>
+          <div className="bold-projects-grid">
+            {t.projects.map((p, i) => (
+              <div key={i} className="project-card">
+                <div className="project-preview">
+                  {p.title.slice(0, 6)}
+                  <div className="pattern" />
+                </div>
+                <div className="project-info">
+                  <h3>{p.title}</h3>
+                  <p>{p.desc}</p>
+                  <div className="exp-tags">
+                    {p.tags.map((tag) => (<span key={tag} className="exp-tag">{tag}</span>))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Education */}
+        <section id="education" className="bold-reveal mb-20">
+          <div className="bold-section-header">
+            <span className="bold-section-number">04</span>
+            <h2 className="bold-section-title">{t.sections.education}</h2>
+          </div>
+          <div className="space-y-6">
+            {t.education.map((edu, i) => (
+              <div key={i} className="edu-card">
+                <div className="edu-icon">{edu.school.slice(0, 2)}</div>
+                <div className="edu-info">
+                  <h3>{edu.degree}</h3>
+                  <div className="edu-school">{edu.school}</div>
+                  <div className="edu-detail">{edu.highlights.join(" | ")}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Contact */}
+        <section id="contact" className="bold-contact bold-reveal">
+          <h2>
+            {lang === "zh" ? <>\\u4E00\\u8D77\\u521B\\u9020<br /><span className="highlight">\\u7CBE\\u5F69\\u4F5C\\u54C1</span></> : <>Let's Build<br /><span className="highlight">Something Cool</span></>}
+          </h2>
+          <p>{lang === "zh" ? "\\u5F00\\u653E\\u5408\\u4F5C\\u4E2D\\uFF0C\\u6B22\\u8FCE\\u8054\\u7CFB" : "Currently open for opportunities."}</p>
+          <div className="bold-contact-links">
+            <a href="mailto:${data.email}" className="contact-chip">${data.email}</a>
+            ${data.github ? `<a href="${data.github}" target="_blank" className="contact-chip">GitHub</a>` : ""}
+            ${data.linkedin ? `<a href="${data.linkedin}" target="_blank" className="contact-chip">LinkedIn</a>` : ""}
+            ${data.location ? `<span className="contact-chip">{lang === "zh" ? "${data.location}" : "${data.locationEn || data.location}"}</span>` : ""}
+          </div>
+        </section>
+
+      </main>
+
+      {/* Footer */}
+      <footer className="bold-footer">
+        <p>{t.footer}</p>
+      </footer>
+
+      ${features.share ? "<SharePoster />" : ""}
+      ${features.chatbot ? "<ChatBot />" : ""}
+    </div>
+  );
+}
+`;
 }
 
 function genSingleColumnPage(data: WorkspaceData, layout: LayoutType, theme: ThemeStyle, features: FeatureFlags): string {
@@ -2540,7 +3026,7 @@ export default function SharePoster() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const W = 750, H = 1300;
+    const W = 750, H = 1100;
     canvas.width = W;
     canvas.height = H;
     const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
