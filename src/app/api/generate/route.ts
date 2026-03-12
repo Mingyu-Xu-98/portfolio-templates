@@ -73,15 +73,8 @@ export async function POST(req: NextRequest) {
     // 3. Write to disk
     await writeFilesToDisk(files);
 
-    // 4. npm install if needed
-    const nodeModulesExists = await fs
-      .access(path.join(OUTPUT_DIR, "node_modules"))
-      .then(() => true)
-      .catch(() => false);
-
-    if (!nodeModulesExists) {
-      await npmInstall();
-    }
+    // 4. npm install (always run to pick up any new dependencies)
+    await npmInstall();
 
     // 5. Start dev server (idempotent)
     startDevServer();
