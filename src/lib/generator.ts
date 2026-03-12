@@ -135,6 +135,8 @@ function getStyleBgMarkup(theme: ThemeStyle): string {
     case "bold-creative": return `<div className="bold-bg"><div className="shape shape-1" /><div className="shape shape-2" /><div className="shape shape-3" /></div>`;
     case "gradient-mesh": return `<div className="mesh-bg"><div className="blob blob-1" /><div className="blob blob-2" /><div className="blob blob-3" /></div>`;
     case "neo-tokyo": return `<div className="neotokyo-bg" />`;
+    case "tpl-resume-bold": return `<div className="bold-resume-bg"><div className="shape shape-1" /><div className="shape shape-2" /><div className="shape shape-3" /></div>`;
+    case "tpl-resume-dark": return `<div className="dark-resume-bg"><div className="blob blob-1" /><div className="blob blob-2" /><div className="blob blob-3" /></div>`;
     case "nature": return "";
     case "editorial": return "";
     default: return "";
@@ -171,6 +173,8 @@ function genLayout(data: WorkspaceData, theme: ThemeStyle, features: FeatureFlag
       nature: "https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap",
       "gradient-mesh": "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap",
       "neo-tokyo": "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap",
+      "tpl-resume-bold": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap",
+      "tpl-resume-dark": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap",
     };
     const url = fontMap[theme];
     if (url) fontLinks = `\n        <link href="${url}" rel="stylesheet" />`;
@@ -487,7 +491,7 @@ const STYLE_CONFIG: Record<ThemeStyle, {
 
 function genLightThemeOverride(theme: ThemeStyle): string {
   // Light themes don't need an override
-  const lightThemes: ThemeStyle[] = ["ghibli", "minimalist", "retro", "brutalist", "bold-creative", "editorial", "nature"];
+  const lightThemes: ThemeStyle[] = ["ghibli", "minimalist", "retro", "brutalist", "bold-creative", "editorial", "nature", "tpl-resume-bold"];
   if (lightThemes.includes(theme)) return "";
   return `
 [data-theme="light"] {
@@ -727,6 +731,53 @@ function genCardStyle(theme: ThemeStyle): string {
   opacity: 0; transition: opacity 0.3s;
 }
 .card:hover::after { opacity: 1; }
+`;
+    case "tpl-resume-bold":
+      return `
+.card {
+  background: var(--color-bg-card);
+  border: 3px solid var(--color-text);
+  border-radius: 0;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 6px 6px 0 var(--color-accent);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 var(--color-accent), 12px 12px 0 var(--color-accent-alt);
+}
+.card::before {
+  content: "";
+  position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+  background: linear-gradient(180deg, var(--color-accent), var(--color-accent-alt));
+  z-index: 2;
+}
+`;
+    case "tpl-resume-dark":
+      return `
+.card {
+  background: var(--color-bg-card);
+  backdrop-filter: blur(20px) saturate(1.3);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.4s, border-color 0.4s, box-shadow 0.4s;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-accent);
+  box-shadow: 0 16px 48px rgba(94,106,210,0.2), 0 0 0 1px var(--color-accent);
+}
+.card::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(94,106,210,0.05) 0%, transparent 50%);
+  pointer-events: none; z-index: 1;
+}
 `;
     default:
       return `
@@ -1097,6 +1148,79 @@ function genAnimationCSS(theme: ThemeStyle): string {
   } else if (theme === "editorial") {
     bgEffects = `
 .editorial-bg { position: relative; }
+`;
+  } else if (theme === "tpl-resume-bold") {
+    bgEffects = `
+.bold-resume-bg {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+}
+.bold-resume-bg .shape { position: absolute; }
+.bold-resume-bg .shape-1 {
+  width: 400px; height: 400px; background: rgba(236,72,153,0.06);
+  top: -10%; right: -10%; border-radius: 30% 70% 70% 30%;
+  animation: floatBold 12s ease-in-out infinite;
+}
+.bold-resume-bg .shape-2 {
+  width: 300px; height: 300px; background: rgba(8,145,178,0.06);
+  bottom: -5%; left: -5%; border-radius: 50%;
+  animation: floatBold 10s ease-in-out infinite reverse;
+}
+.bold-resume-bg .shape-3 {
+  width: 200px; height: 200px; background: rgba(236,72,153,0.04);
+  top: 40%; left: 50%; border-radius: 20%; transform: rotate(45deg);
+  animation: floatBold 14s ease-in-out infinite;
+}
+@keyframes floatBold { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-20px) rotate(3deg); } }
+
+/* Bold resume — thick borders, hard shadows */
+.section-heading {
+  font-size: 1.5rem !important; font-weight: 900 !important; text-transform: uppercase !important;
+  letter-spacing: 0.05em; border-bottom: 4px solid var(--color-accent); padding-bottom: 0.5rem;
+  display: inline-block; margin-bottom: 1.5rem !important;
+}
+.badge {
+  border: 2px solid var(--color-text) !important; border-radius: 0 !important;
+  font-weight: 600 !important; box-shadow: 2px 2px 0 var(--color-accent);
+}
+.contact-icon {
+  border: 2px solid var(--color-text) !important; box-shadow: 3px 3px 0 var(--color-accent);
+}
+.contact-icon:hover { box-shadow: 3px 3px 0 var(--color-accent-alt); }
+.avatar-glow { display: none; }
+`;
+  } else if (theme === "tpl-resume-dark") {
+    bgEffects = `
+.dark-resume-bg {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+}
+.dark-resume-bg .blob { position: absolute; border-radius: 50%; filter: blur(80px); }
+.dark-resume-bg .blob-1 {
+  width: 400px; height: 400px; background: rgba(94,106,210,0.08);
+  top: -15%; right: -10%; animation: floatDark 15s ease-in-out infinite;
+}
+.dark-resume-bg .blob-2 {
+  width: 350px; height: 350px; background: rgba(139,92,246,0.06);
+  bottom: -10%; left: -5%; animation: floatDark 12s ease-in-out infinite reverse;
+}
+.dark-resume-bg .blob-3 {
+  width: 250px; height: 250px; background: rgba(52,211,153,0.04);
+  top: 50%; left: 40%; animation: floatDark 18s ease-in-out infinite;
+}
+@keyframes floatDark { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-30px); } }
+
+/* Dark resume — pill nav, grain texture overlay */
+body::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.section-heading {
+  background: var(--color-bg-card) !important; display: inline-block;
+  padding: 0.4rem 1.2rem !important; border-radius: 999px !important;
+  border: 1px solid var(--color-line) !important; font-size: 0.85rem !important;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.badge { border-radius: 999px !important; }
 `;
   }
 

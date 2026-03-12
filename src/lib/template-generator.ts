@@ -6,8 +6,6 @@ const TEMPLATES_BASE = path.join(process.cwd(), "..", "create-any-web");
 
 const TEMPLATE_STYLES: ThemeStyle[] = [
   "tpl-business",
-  "tpl-resume-bold",
-  "tpl-resume-dark",
 ];
 
 export function isTemplateStyle(theme: ThemeStyle | null): boolean {
@@ -37,12 +35,6 @@ export async function generateFromTemplate(
   if (templateDir) {
     // ---- Next.js template: read source files from disk ----
     await copyNextjsTemplate(path.join(TEMPLATES_BASE, templateDir), files);
-  } else if (theme === "tpl-resume-bold") {
-    // ---- resume.html template: convert to Next.js ----
-    await convertHtmlTemplate(path.join(TEMPLATES_BASE, "resume.html"), files);
-  } else if (theme === "tpl-resume-dark") {
-    // ---- resume-2.html template: convert to Next.js ----
-    await convertHtmlTemplate(path.join(TEMPLATES_BASE, "resume-2.html"), files);
   }
 
   // Generate data-dependent files (overwrite template's originals)

@@ -39,6 +39,8 @@
     "node_modules",
     "output",
     "ui-ux-pro-max-skill",
-    "ui-skill"
+    "ui-skill",
+    "bussiness-portfolio",
+    "ghibli-portfolio"
   ]
 }
