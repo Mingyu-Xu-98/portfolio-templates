@@ -65,22 +65,6 @@ export const SITE_TYPE_OPTIONS: QuestionOption<SiteType>[] = [
     descEn: "Professional brand presence with a strong identity",
   },
   {
-    value: "blog",
-    icon: "pencil",
-    label: "博客 / 日志",
-    labelEn: "Blog / Journal",
-    desc: "以内容为中心的文章列表布局",
-    descEn: "Content-focused layout with article listings",
-  },
-  {
-    value: "landing",
-    icon: "rocket",
-    label: "着陆页",
-    labelEn: "Landing Page",
-    desc: "单页转化型设计",
-    descEn: "Single-page conversion-focused design",
-  },
-  {
     value: "custom",
     icon: "pencil",
     label: "自定义",

@@ -104,8 +104,6 @@ export default function Home() {
                 options={[
                   { value: "portfolio", icon: "briefcase", label: "个人简历网站", desc: "展示你的职业经历、项目、技能和教育背景" },
                   { value: "brand", icon: "star", label: "品牌官网", desc: "专业品牌形象，强烈视觉识别" },
-                  { value: "blog", icon: "pencil", label: "博客 / 日志", desc: "以内容为中心的文章列表布局" },
-                  { value: "landing", icon: "rocket", label: "着陆页", desc: "单页转化型设计" },
                   { value: "custom", icon: "pencil", label: "自定义", desc: "用自己的话描述理想的网站类型" },
                 ]}
                 selected={selections.siteType}
