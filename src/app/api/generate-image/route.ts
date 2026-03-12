@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
 
-const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY || "";
+const SILICONFLOW_URL = "https://api.siliconflow.cn/v1/images/generations";
+const API_KEY = process.env.SILICONFLOW_API_KEY || "";
 const OUTPUT_DIR = path.join(process.cwd(), "output");
 
 /**
- * Generate an image via OpenRouter (gpt-5-image-mini) and save to output/public/images/.
+ * Generate an image via SiliconFlow (FLUX.1-schnell) and save to output/public/images/.
  * Body: { prompt: string; filename: string; style: string }
  */
 export async function POST(req: NextRequest) {
@@ -18,35 +18,34 @@ export async function POST(req: NextRequest) {
       style: string;
     };
 
-    if (!OPENROUTER_KEY) {
+    if (!API_KEY) {
       return NextResponse.json(
-        { error: "OPENROUTER_API_KEY not configured" },
+        { error: "SILICONFLOW_API_KEY not configured" },
         { status: 500 },
       );
     }
 
-    // Call OpenRouter chat completions with image generation model
-    const response = await fetch(OPENROUTER_URL, {
+    // Determine image size: square for avatars/icons, 16:9 for backgrounds/projects
+    const isSquare = filename === "avatar.png" || filename === "chatbot-spirit.png";
+    const imageSize = isSquare ? "1024x1024" : "1024x576";
+
+    const response = await fetch(SILICONFLOW_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENROUTER_KEY}`,
+        Authorization: `Bearer ${API_KEY}`,
       },
       body: JSON.stringify({
-        model: "openai/gpt-5-image-mini",
-        messages: [
-          {
-            role: "user",
-            content: `Generate an image: ${prompt}`,
-          },
-        ],
-        max_tokens: 4096,
+        model: "black-forest-labs/FLUX.1-schnell",
+        prompt,
+        image_size: imageSize,
+        num_inference_steps: 20,
       }),
     });
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error("OpenRouter image error:", errText);
+      console.error("SiliconFlow image error:", errText);
       return NextResponse.json(
         { error: `Image generation failed: ${response.status}` },
         { status: 500 },
@@ -54,34 +53,25 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await response.json();
+    const imageUrl = result.images?.[0]?.url;
 
-    // Extract base64 image from response: choices[0].message.images[0].image_url.url
-    const images = result.choices?.[0]?.message?.images;
-    if (!images || images.length === 0) {
+    if (!imageUrl) {
       return NextResponse.json(
-        { error: "No image in response" },
+        { error: "No image URL in response" },
         { status: 500 },
       );
     }
 
-    const dataUrl = images[0]?.image_url?.url as string;
-    if (!dataUrl || !dataUrl.startsWith("data:image/")) {
+    // Download the generated image
+    const imgRes = await fetch(imageUrl);
+    if (!imgRes.ok) {
       return NextResponse.json(
-        { error: "Invalid image data in response" },
+        { error: "Failed to download generated image" },
         { status: 500 },
       );
     }
 
-    // Parse base64 data URL: "data:image/png;base64,..."
-    const base64Data = dataUrl.split(",")[1];
-    if (!base64Data) {
-      return NextResponse.json(
-        { error: "Could not parse base64 image data" },
-        { status: 500 },
-      );
-    }
-
-    const buffer = Buffer.from(base64Data, "base64");
+    const buffer = Buffer.from(await imgRes.arrayBuffer());
     const imagesDir = path.join(OUTPUT_DIR, "public", "images");
     await fs.mkdir(imagesDir, { recursive: true });
     const savePath = path.join(imagesDir, filename);

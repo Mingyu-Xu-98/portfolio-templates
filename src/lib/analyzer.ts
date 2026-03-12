@@ -54,6 +54,7 @@ export async function analyzeWorkspace(file: File): Promise<WorkspaceData> {
   const educationData = findByHeaderKeyword(factualHeaders, factualData, ["教育", "education"]);
   const skillsData = findByHeaderKeyword(factualHeaders, factualData, ["技能", "skills", "特长"]);
   const workData = findByHeaderKeyword(factualHeaders, factualData, ["工作", "经历", "work", "experience"]);
+  const projectData = findAllByHeaderKeyword(factualHeaders, factualData, ["项目", "project", "github", "开源", "作品"]);
 
   // Parse personal info
   const person = (personalInfo ?? {}) as Record<string, string>;
@@ -69,7 +70,11 @@ export async function analyzeWorkspace(file: File): Promise<WorkspaceData> {
 
   // Parse work experience -> timeline + projects
   const workItems = Array.isArray(workData) ? workData : workData ? [workData] : [];
-  const { timeline, projects } = parseWork(workItems as Record<string, unknown>[]);
+  const { timeline, projects: workProjects } = parseWork(workItems as Record<string, unknown>[]);
+
+  // Parse standalone projects (GitHub, personal projects, etc.)
+  const standaloneProjects = parseStandaloneProjects(projectData);
+  const projects = [...workProjects, ...standaloneProjects].slice(0, 12);
 
   // Read any other markdown files at the root level
   const rootMarkdowns: Record<string, string> = {};
@@ -93,12 +98,19 @@ export async function analyzeWorkspace(file: File): Promise<WorkspaceData> {
 
   // Generate English versions (simplified transliteration placeholders)
   const nameEn = guessEnglishName(name);
+  const title = guessTitle(workItems as Record<string, unknown>[]);
+  const titleEn = guessTitleEn(workItems as Record<string, unknown>[]);
+
+  // Generate bio and characteristic tags
+  const { bio, bioEn, bioTags, bioTagsEn } = generateBio(
+    name, nameEn, title, titleEn, education, skills, workItems as Record<string, unknown>[], projects, eureka,
+  );
 
   return {
     name,
     nameEn,
-    title: guessTitle(workItems as Record<string, unknown>[]),
-    titleEn: guessTitleEn(workItems as Record<string, unknown>[]),
+    title,
+    titleEn,
     email,
     location,
     locationEn: location, // keep as-is for cities
@@ -112,9 +124,117 @@ export async function analyzeWorkspace(file: File): Promise<WorkspaceData> {
     educationEn: education.map(e => ({ ...e })),
     tags: extractTags(skills),
     tagsEn: extractTags(skills),
+    bio,
+    bioEn,
+    bioTags,
+    bioTagsEn,
     github: extractGithub(person),
     linkedin: "",
     chatbotContext,
+  };
+}
+
+function generateBio(
+  name: string,
+  nameEn: string,
+  title: string,
+  titleEn: string,
+  education: EducationItem[],
+  skills: SkillGroup[],
+  workItems: Record<string, unknown>[],
+  projects: ProjectItem[],
+  eureka: string | null,
+): { bio: string; bioEn: string; bioTags: string[]; bioTagsEn: string[] } {
+  // Build bio from available data
+  const parts: string[] = [];
+  const partsEn: string[] = [];
+
+  // Intro
+  const school = education.length > 0 && education[0].school ? education[0].school : "";
+  const degree = education.length > 0 && education[0].degree ? education[0].degree : "";
+  if (school) {
+    parts.push(`${name}，${school}${degree}。`);
+    partsEn.push(`${nameEn}, ${degree} from ${school}.`);
+  } else {
+    parts.push(`${name}，${title}。`);
+    partsEn.push(`${nameEn}, ${titleEn}.`);
+  }
+
+  // Work experience summary
+  if (workItems.length > 0) {
+    const companies = workItems.map(w => String(w["公司"] || w["company"] || "")).filter(Boolean);
+    const yearsOfExp = workItems.length;
+    if (companies.length > 0) {
+      parts.push(`曾就职于${companies.slice(0, 3).join("、")}等公司，拥有丰富的${title}经验。`);
+      partsEn.push(`Worked at ${companies.slice(0, 3).join(", ")} with extensive ${titleEn} experience.`);
+    } else if (yearsOfExp > 0) {
+      parts.push(`拥有丰富的${title}经验。`);
+      partsEn.push(`Extensive experience as a ${titleEn}.`);
+    }
+  }
+
+  // Skills highlight
+  const topSkills = skills.flatMap(g => g.skills).slice(0, 5);
+  if (topSkills.length > 0) {
+    parts.push(`擅长${topSkills.join("、")}。`);
+    partsEn.push(`Skilled in ${topSkills.join(", ")}.`);
+  }
+
+  // Projects highlight
+  if (projects.length > 0) {
+    const count = projects.length;
+    parts.push(`主导或参与了${count}个项目，涵盖${projects.slice(0, 3).map(p => p.title).join("、")}等。`);
+    partsEn.push(`Led or participated in ${count} projects including ${projects.slice(0, 3).map(p => p.title).join(", ")}.`);
+  }
+
+  // Eureka insight if available
+  if (eureka) {
+    const firstLine = eureka.split("\n").find(l => l.trim().length > 10)?.trim();
+    if (firstLine && firstLine.length < 100) {
+      parts.push(firstLine);
+    }
+  }
+
+  const bio = parts.join("");
+  const bioEn = partsEn.join(" ");
+
+  // Generate characteristic tags
+  const bioTags: string[] = [];
+  const bioTagsEn: string[] = [];
+
+  // From education
+  if (school) {
+    bioTags.push(school.length > 6 ? school.slice(0, 6) : school);
+    bioTagsEn.push(school);
+  }
+
+  // From title
+  if (title) {
+    bioTags.push(title);
+    bioTagsEn.push(titleEn);
+  }
+
+  // From top skills (pick 2-3 distinctive ones)
+  const distinctiveSkills = skills.flatMap(g => g.skills).filter(s => s.length <= 10).slice(0, 3);
+  for (const s of distinctiveSkills) {
+    bioTags.push(s);
+    bioTagsEn.push(s);
+  }
+
+  // From work (latest company)
+  if (workItems.length > 0) {
+    const company = String(workItems[0]["公司"] || workItems[0]["company"] || "");
+    if (company) {
+      bioTags.push(company.length > 6 ? company.slice(0, 6) : company);
+      bioTagsEn.push(company);
+    }
+  }
+
+  return {
+    bio,
+    bioEn,
+    bioTags: bioTags.slice(0, 6),
+    bioTagsEn: bioTagsEn.slice(0, 6),
   };
 }
 
@@ -143,6 +263,47 @@ function findByHeaderKeyword(
     }
   }
   return null;
+}
+
+function findAllByHeaderKeyword(
+  headers: Record<string, string>,
+  data: Record<string, unknown>,
+  keywords: string[]
+): unknown[] {
+  const results: unknown[] = [];
+  for (const [skuId, header] of Object.entries(headers)) {
+    const lower = header.toLowerCase();
+    if (keywords.some(kw => lower.includes(kw))) {
+      const d = data[skuId];
+      if (d !== undefined) {
+        if (Array.isArray(d)) results.push(...d);
+        else results.push(d);
+      }
+    }
+  }
+  return results;
+}
+
+function parseStandaloneProjects(items: unknown[]): ProjectItem[] {
+  const projects: ProjectItem[] = [];
+  for (const item of items) {
+    const r = item as Record<string, unknown>;
+    const name = String(r["项目名称"] || r["name"] || r["title"] || r["名称"] || "");
+    if (!name) continue;
+    const desc = String(r["描述"] || r["description"] || r["简介"] || r["工作内容"] || r["内容"] || "");
+    const link = String(r["链接"] || r["link"] || r["url"] || r["github"] || "");
+    const tagsRaw = r["标签"] || r["tags"] || r["技术栈"] || r["tech"] || [];
+    const tags = Array.isArray(tagsRaw) ? tagsRaw.map(String).slice(0, 4) : extractProjectTags(desc);
+    projects.push({
+      title: name,
+      org: String(r["组织"] || r["org"] || ""),
+      desc: desc.slice(0, 200),
+      tags,
+      image: `/images/project-${projects.length + 1}.png`,
+      link: link || undefined,
+    });
+  }
+  return projects;
 }
 
 function parseEducation(raw: unknown): EducationItem[] {

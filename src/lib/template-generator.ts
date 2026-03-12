@@ -41,9 +41,7 @@ export async function generateFromTemplate(
   files["src/i18n/translations.ts"] = genTemplateTranslations(data);
 
   // Chat API route
-  if (selections.features.chatbot) {
-    files["src/app/api/chat/route.ts"] = genTemplateChatRoute(data);
-  }
+  files["src/app/api/chat/route.ts"] = genTemplateChatRoute(data);
 
   return files;
 }

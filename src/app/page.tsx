@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import type { WorkspaceData, UserSelections, FeatureFlags, SiteType, ThemeStyle } from "@/lib/types";
+import type { WorkspaceData, UserSelections, SiteType, ThemeStyle } from "@/lib/types";
 import { INITIAL_SELECTIONS, WIZARD_STEPS } from "@/lib/types";
 import { analyzeWorkspace } from "@/lib/analyzer";
 import { getAutoLayout, getStylesForSiteType } from "@/lib/questions";
@@ -9,7 +9,7 @@ import { getAutoLayout, getStylesForSiteType } from "@/lib/questions";
 import StepIndicator from "@/components/StepIndicator";
 import UploadZone from "@/components/UploadZone";
 import QuestionCard from "@/components/QuestionCard";
-import FeatureToggle from "@/components/FeatureToggle";
+import SpecPanel from "@/components/SpecPanel";
 import GeneratePanel from "@/components/GeneratePanel";
 
 export default function Home() {
@@ -40,7 +40,7 @@ export default function Home() {
       case "upload": return false;
       case "siteType": return !!selections.siteType;
       case "theme": return !!selections.theme;
-      case "features": return true;
+      case "spec": return false;
       case "generate": return false;
       default: return false;
     }
@@ -135,10 +135,11 @@ export default function Home() {
               />
             )}
 
-            {currentStepId === "features" && (
-              <FeatureToggle
-                features={selections.features}
-                onChange={(f: FeatureFlags) => setSelections({ ...selections, features: f })}
+            {currentStepId === "spec" && workspaceData && (
+              <SpecPanel
+                data={workspaceData}
+                onUpdate={(updated) => setWorkspaceData(updated)}
+                onConfirm={() => setStep(step + 1)}
               />
             )}
 
@@ -161,7 +162,7 @@ export default function Home() {
               上一步
             </button>
 
-            {currentStepId !== "generate" && (
+            {currentStepId !== "generate" && currentStepId !== "spec" && (
               <button
                 onClick={next}
                 disabled={!canNext()}

@@ -117,24 +117,6 @@ export default function GeneratePanel({ data, selections }: Props) {
               ))}
             </div>
           </div>
-          <div className="border-t border-line pt-3 space-y-2">
-            <div className="flex justify-between items-start">
-              <span className="text-text-muted">项目</span>
-              <div className="flex flex-wrap gap-1 justify-end max-w-[280px]">
-                {data.projects.map((p) => (
-                  <span key={p.title} className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-text-muted">{p.title}</span>
-                ))}
-              </div>
-            </div>
-            <div className="flex justify-between items-start">
-              <span className="text-text-muted">技能</span>
-              <div className="flex flex-wrap gap-1 justify-end max-w-[280px]">
-                {data.skills.flatMap((g) => g.skills).slice(0, 12).map((s) => (
-                  <span key={s} className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-text-muted">{s}</span>
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 

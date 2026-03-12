@@ -260,11 +260,11 @@ export const ALL_THEME_OPTIONS: QuestionOption<ThemeStyle>[] = [
   {
     value: "brutalist",
     icon: "style-brutal",
-    label: "粗野主义",
-    labelEn: "Brutalist",
-    desc: "粗犷边框、超大字体、零圆角、高对比",
-    descEn: "Raw bold borders, oversized typography, zero rounded corners, high contrast",
-    preview: "linear-gradient(135deg, #ffffff 0%, #000000 200%)",
+    label: "暗码终端",
+    labelEn: "Dark Terminal",
+    desc: "深色背景、等宽字体、极简排版、开发者风格",
+    descEn: "Dark background, monospace font, minimal layout, developer-style",
+    preview: "linear-gradient(135deg, #1d1d1d 0%, #2a2a2a 50%, #4493f8 200%)",
   },
   {
     value: "cinematic",
@@ -361,26 +361,27 @@ export const ALL_THEME_OPTIONS: QuestionOption<ThemeStyle>[] = [
 // Keep backward compat export
 export const THEME_OPTIONS = ALL_THEME_OPTIONS;
 
+/** Styles to hide when site type is "portfolio" */
+const PORTFOLIO_HIDDEN_STYLES: ThemeStyle[] = [
+  "cyberpunk",
+  "cinematic",
+  "neo-tokyo",
+  "gradient-mesh",
+  "nature",
+  "tpl-resume-dark",
+  "bold-creative",
+  "editorial",
+  "tpl-business",
+  "retro",
+];
+
 /**
- * Return all style options. No filtering — show everything.
+ * Return style options filtered by site type.
  */
-export function getStylesForSiteType(_siteType: string | null): QuestionOption<ThemeStyle>[] {
+export function getStylesForSiteType(siteType: string | null): QuestionOption<ThemeStyle>[] {
+  if (siteType === "portfolio") {
+    return ALL_THEME_OPTIONS.filter(o => !PORTFOLIO_HIDDEN_STYLES.includes(o.value));
+  }
   return ALL_THEME_OPTIONS;
 }
 
-export interface FeatureOption {
-  key: string;
-  icon: string;
-  label: string;
-  desc: string;
-  default: boolean;
-}
-
-export const FEATURE_OPTIONS: FeatureOption[] = [
-  { key: "chatbot",    icon: "message",  label: "AI 聊天机器人",  desc: "由大语言模型驱动的智能对话",     default: true },
-  { key: "i18n",       icon: "globe",    label: "中英双语",       desc: "中文 + 英文语言切换",           default: true },
-  { key: "darkMode",   icon: "moon",     label: "暗色模式",       desc: "明暗主题切换",                  default: false },
-  { key: "animations", icon: "sparkle",  label: "动画效果",       desc: "悬停效果、过渡动画、粒子特效",   default: true },
-  { key: "typewriter", icon: "terminal", label: "打字机效果",     desc: "首屏打字动画效果",              default: false },
-  { key: "share",      icon: "share",    label: "分享海报",       desc: "一键生成精美分享海报，邀请他人对话", default: true },
-];

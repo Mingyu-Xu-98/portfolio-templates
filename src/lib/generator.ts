@@ -63,15 +63,9 @@ export function generateFileMap(
   files["src/i18n/translations.ts"] = genTranslations(data);
   files["src/components/LanguageProvider.tsx"] = genLanguageProvider();
 
-  if (features.typewriter) files["src/components/TypewriterHero.tsx"] = genTypewriterHero();
-  if (features.darkMode) files["src/components/ThemeToggle.tsx"] = genThemeToggle();
-  if (features.chatbot) {
-    files["src/components/ChatBot.tsx"] = genChatBot();
-    files["src/app/api/chat/route.ts"] = genChatRoute(data);
-  }
-  if (features.share) {
-    files["src/components/SharePoster.tsx"] = genSharePoster();
-  }
+  files["src/components/ChatBot.tsx"] = genChatBot();
+  files["src/app/api/chat/route.ts"] = genChatRoute(data);
+  files["src/components/SharePoster.tsx"] = genSharePoster();
 
   // Style-specific extra components
   if (theme === "cyberpunk") {
@@ -80,6 +74,12 @@ export function generateFileMap(
   if (theme === "retro") {
     files["src/components/GrainOverlay.tsx"] = genGrainOverlay();
   }
+  if (theme === "ghibli") {
+    files["scripts/generate-images.mjs"] = genGhibliImageScript(data);
+  }
+
+  // SiliconFlow API key for chatbot (all themes) and image generation (ghibli)
+  files[".env.local"] = `SILICONFLOW_API_KEY=sk-tiucfyagykltjzwgnkyzgxkrzkomwwfrauhvepzserdjtupv\n`;
 
   files["public/images/README.txt"] = "Place your project images and avatar.png here.\n";
 
@@ -128,7 +128,7 @@ function genTsConfig(): string {
 function getStyleBgMarkup(theme: ThemeStyle): string {
   switch (theme) {
     case "cyberpunk": return `<div className="cyber-grid" /><div className="scanlines" /><ParticleBackground />`;
-    case "glassmorphism": return `<div className="glass-bg"><div className="blob blob-1" /><div className="blob blob-2" /><div className="blob blob-3" /></div>`;
+    case "glassmorphism": return `<div className="glass-bg"><div className="blob blob-1" /><div className="blob blob-2" /><div className="blob blob-3" /><div className="blob blob-4" /></div>`;
     case "ghibli": return `<div className="ghibli-clouds" />`;
     case "retro": return `<GrainOverlay />`;
     case "cinematic": return `<div className="cinematic-bg" /><div className="letterbox-top" /><div className="letterbox-bottom" />`;
@@ -147,10 +147,7 @@ function genLayout(data: WorkspaceData, theme: ThemeStyle, features: FeatureFlag
   const bgThemes = ["ghibli", "nature", "cinematic"];
   const bodyClassMap: Partial<Record<ThemeStyle, string>> = { ghibli: "ghibli-bg", nature: "nature-bg", cinematic: "cinematic-page-bg" };
   const bodyClass = bgThemes.includes(theme) ? (bodyClassMap[theme] || "") : "";
-  const darkScript = features.darkMode ? `
-      <script dangerouslySetInnerHTML={{ __html: \`
-        (function(){var t=localStorage.getItem('theme');if(t)document.documentElement.setAttribute('data-theme',t);})();
-      \`}} />` : "";
+  const darkScript = "";
 
   // External fonts - prefer design intelligence fonts, fall back to defaults
   let fontLinks = "";
@@ -164,6 +161,7 @@ function genLayout(data: WorkspaceData, theme: ThemeStyle, features: FeatureFlag
   }
   if (!fontLinks) {
     const fontMap: Partial<Record<ThemeStyle, string>> = {
+      brutalist: "https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap",
       cyberpunk: "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap",
       ghibli: "https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&display=swap",
       minimalist: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap",
@@ -220,7 +218,7 @@ ${Object.entries(config.colors).map(([k, v]) => `  --color-${k}: ${v};`).join("\
 }
 `;
 
-  const lightTheme = features.darkMode ? genLightThemeOverride(theme) : "";
+  const lightTheme = "";
 
   const baseStyles = `
 body {
@@ -228,7 +226,7 @@ body {
   color: var(--color-text);
   font-family: var(--font-sans);
   line-height: 1.6;
-  overflow-x: hidden;${features.darkMode ? "\n  transition: background-color 0.4s ease, color 0.4s ease;" : ""}
+  overflow-x: hidden;
 }
 ::selection { background-color: var(--color-accent); color: white; }
 html { scroll-behavior: smooth; }
@@ -262,8 +260,8 @@ html { scroll-behavior: smooth; }
 
   const cardStyle = genCardStyle(theme);
   const layoutCSS = genLayoutCSS(layout, theme);
-  const animationCSS = features.animations ? genAnimationCSS(theme) : "";
-  const chatCSS = features.chatbot ? genChatCSS() : "";
+  const animationCSS = genAnimationCSS(theme);
+  const chatCSS = genChatCSS();
 
   return base + lightTheme + baseStyles + sectionHeading + cardStyle + layoutCSS + animationCSS + chatCSS;
 }
@@ -324,14 +322,14 @@ const STYLE_CONFIG: Record<ThemeStyle, {
   },
   minimalist: {
     colors: {
-      bg: "#ffffff", "bg-card": "#f8f8f8", "bg-card-solid": "#f5f5f5",
-      "bg-tag": "rgba(0,0,0,0.04)", text: "#111111", "text-muted": "#888888",
-      accent: "#111111", "accent-soft": "rgba(0,0,0,0.04)", "accent-alt": "#555555",
-      line: "rgba(0,0,0,0.08)", green: "#111111",
+      bg: "#ffffff", "bg-card": "#f9fafb", "bg-card-solid": "#f3f4f6",
+      "bg-tag": "rgba(0,0,0,0.05)", text: "#111827", "text-muted": "#6b7280",
+      accent: "#111827", "accent-soft": "rgba(17,24,39,0.06)", "accent-alt": "#4b5563",
+      line: "rgba(0,0,0,0.08)", green: "#10b981",
     },
     fontSans: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif',
     fontHeading: '"Inter", -apple-system, sans-serif',
-    borderRadius: "2px",
+    borderRadius: "12px",
   },
   ghibli: {
     colors: {
@@ -346,9 +344,9 @@ const STYLE_CONFIG: Record<ThemeStyle, {
   },
   glassmorphism: {
     colors: {
-      bg: "#0f0720", "bg-card": "rgba(255,255,255,0.08)", "bg-card-solid": "rgba(30,20,60,0.9)",
-      "bg-tag": "rgba(139,92,246,0.12)", text: "#f0e8ff", "text-muted": "#a090c0",
-      accent: "#8b5cf6", "accent-soft": "rgba(139,92,246,0.15)", "accent-alt": "#f093fb",
+      bg: "#0d1520", "bg-card": "rgba(255,255,255,0.08)", "bg-card-solid": "rgba(15,25,50,0.9)",
+      "bg-tag": "rgba(70,130,220,0.12)", text: "#e8f0ff", "text-muted": "#8aa0c0",
+      accent: "#5b8fd9", "accent-soft": "rgba(70,130,220,0.15)", "accent-alt": "#7cb3ff",
       line: "rgba(255,255,255,0.1)", green: "#34d399",
     },
     fontSans: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -368,13 +366,13 @@ const STYLE_CONFIG: Record<ThemeStyle, {
   },
   brutalist: {
     colors: {
-      bg: "#ffffff", "bg-card": "#ffffff", "bg-card-solid": "#ffffff",
-      "bg-tag": "#000000", text: "#000000", "text-muted": "#333333",
-      accent: "#ff0000", "accent-soft": "rgba(255,0,0,0.08)", "accent-alt": "#0000ff",
-      line: "#000000", green: "#000000",
+      bg: "#1d1d1d", "bg-card": "rgba(255,255,255,0.04)", "bg-card-solid": "#252525",
+      "bg-tag": "rgba(255,255,255,0.08)", text: "#e0e0e0", "text-muted": "#888888",
+      accent: "#4493f8", "accent-soft": "rgba(68,147,248,0.1)", "accent-alt": "#79c0ff",
+      line: "rgba(255,255,255,0.1)", green: "#4493f8",
     },
-    fontSans: 'Arial, Helvetica, sans-serif',
-    fontHeading: '"Arial Black", "Impact", sans-serif',
+    fontSans: '"Fira Code", "JetBrains Mono", "SF Mono", Consolas, monospace',
+    fontHeading: '"Fira Code", "JetBrains Mono", monospace',
     borderRadius: "0px",
   },
   cinematic: {
@@ -491,7 +489,7 @@ const STYLE_CONFIG: Record<ThemeStyle, {
 
 function genLightThemeOverride(theme: ThemeStyle): string {
   // Light themes don't need an override
-  const lightThemes: ThemeStyle[] = ["ghibli", "minimalist", "retro", "brutalist", "bold-creative", "editorial", "nature", "tpl-resume-bold"];
+  const lightThemes: ThemeStyle[] = ["ghibli", "minimalist", "retro", "bold-creative", "editorial", "nature", "tpl-resume-bold"];
   if (lightThemes.includes(theme)) return "";
   return `
 [data-theme="light"] {
@@ -534,14 +532,14 @@ function genCardStyle(theme: ThemeStyle): string {
     case "minimalist":
       return `
 .card {
-  background: transparent;
+  background: var(--color-bg-card);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-card);
   overflow: hidden;
   position: relative;
-  transition: border-color 0.3s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
-.card:hover { border-color: var(--color-text); }
+.card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); border-color: transparent; }
 `;
     case "ghibli":
       return `
@@ -575,7 +573,7 @@ function genCardStyle(theme: ThemeStyle): string {
 .card:hover {
   transform: translateY(-4px);
   border-color: rgba(255,255,255,0.2);
-  box-shadow: 0 16px 48px rgba(139,92,246,0.15);
+  box-shadow: 0 16px 48px rgba(70,130,220,0.15);
 }
 .card::before {
   content: "";
@@ -605,16 +603,14 @@ function genCardStyle(theme: ThemeStyle): string {
       return `
 .card {
   background: var(--color-bg-card);
-  border: 3px solid var(--color-text);
+  border: 1px solid var(--color-line);
   border-radius: 0;
   overflow: hidden;
   position: relative;
-  box-shadow: 6px 6px 0 var(--color-text);
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition: border-color 0.2s;
 }
 .card:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 9px 9px 0 var(--color-text);
+  border-color: var(--color-text-muted);
 }
 `;
     case "cinematic":
@@ -1024,48 +1020,730 @@ function genAnimationCSS(theme: ThemeStyle): string {
 `;
   } else if (theme === "glassmorphism") {
     bgEffects = `
+/* === Glassmorphism Dusk Street Background === */
 .glass-bg {
   position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0;
-  background: linear-gradient(135deg, #0f0720 0%, #1a0535 30%, #0d1b3e 60%, #0f0720 100%);
+  background: linear-gradient(160deg, #0a1628 0%, #121d3a 25%, #1a2a4a 50%, #162040 75%, #0d1520 100%);
 }
-.glass-bg .blob { position: absolute; border-radius: 50%; filter: blur(120px); }
-.glass-bg .blob-1 { width: 600px; height: 600px; background: rgba(139,92,246,0.3); top: -20%; right: -5%; animation: float1 20s ease-in-out infinite; }
-.glass-bg .blob-2 { width: 500px; height: 500px; background: rgba(240,147,251,0.2); bottom: -10%; left: -10%; animation: float2 25s ease-in-out infinite; }
-.glass-bg .blob-3 { width: 400px; height: 400px; background: rgba(96,165,250,0.15); top: 40%; left: 30%; animation: float3 22s ease-in-out infinite; }
+.glass-bg .blob { position: absolute; border-radius: 50%; filter: blur(150px); }
+.glass-bg .blob-1 { width: 700px; height: 700px; background: rgba(40,80,160,0.3); top: -15%; right: -10%; animation: float1 20s ease-in-out infinite; }
+.glass-bg .blob-2 { width: 550px; height: 550px; background: rgba(60,100,180,0.2); bottom: -10%; left: -10%; animation: float2 25s ease-in-out infinite; }
+.glass-bg .blob-3 { width: 450px; height: 450px; background: rgba(80,130,200,0.15); top: 40%; left: 30%; animation: float3 22s ease-in-out infinite; }
+.glass-bg .blob-4 { width: 400px; height: 400px; background: rgba(50,90,150,0.18); bottom: 20%; right: 20%; animation: float4 28s ease-in-out infinite; }
 @keyframes float1 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-60px,40px) scale(1.1)} }
 @keyframes float2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(50px,-30px) scale(1.08)} }
 @keyframes float3 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-30px,-40px) scale(0.9)} }
+@keyframes float4 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(40px,30px) scale(1.05)} }
+
+/* === Layout === */
+.gm-layout { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+.gm-sidebar {
+  width: 280px; min-width: 280px; position: fixed; top: 0; left: 0; bottom: 0;
+  display: flex; flex-direction: column; gap: 12px; padding: 16px;
+  overflow-y: auto; z-index: 10;
+}
+.gm-sidebar::-webkit-scrollbar { width: 4px; }
+.gm-sidebar::-webkit-scrollbar-thumb { background: rgba(70,130,220,0.3); border-radius: 2px; }
+.gm-main { margin-left: 280px; flex: 1; padding: 32px 40px; min-height: 100vh; }
+
+/* === Glass Card Base === */
+.gm-card {
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; padding: 20px;
+  position: relative; overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+.gm-card::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+.gm-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.18); box-shadow: 0 8px 32px rgba(70,130,220,0.12); }
+
+/* === Sidebar: Avatar === */
+.gm-avatar-wrap { display: flex; flex-direction: column; align-items: center; padding: 24px 16px 16px; }
+.gm-avatar-ring {
+  position: relative; width: 100px; height: 100px; border-radius: 50%;
+  background: conic-gradient(from 0deg, #4682d9, #7cb3ff, #3a6fb0, #4682d9);
+  padding: 3px; margin-bottom: 12px;
+  animation: gm-ring-spin 8s linear infinite;
+}
+@keyframes gm-ring-spin { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+.gm-avatar-ring img {
+  width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+  border: 3px solid #0d1520;
+}
+.gm-avatar-glow {
+  position: absolute; inset: -8px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(70,130,220,0.4) 0%, transparent 70%);
+  animation: gm-glow-pulse 3s ease-in-out infinite; z-index: -1;
+}
+@keyframes gm-glow-pulse { 0%,100%{opacity:0.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.1)} }
+.gm-sidebar-name { font-size: 1.1rem; font-weight: 700; color: #e8f0ff; text-align: center; margin-bottom: 2px; }
+.gm-sidebar-title { font-size: 0.8rem; color: #8aa0c0; text-align: center; }
+
+/* === Sidebar: Info Card === */
+.gm-info-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; color: #8aa0c0; font-size: 0.82rem; }
+.gm-info-row svg { width: 16px; height: 16px; color: #5b8fd9; flex-shrink: 0; }
+
+/* === Sidebar: Tags === */
+.gm-tag-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+.gm-tag {
+  display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.72rem;
+  background: rgba(70,130,220,0.15); color: #a0c4e8; border: 1px solid rgba(70,130,220,0.2);
+  transition: all 0.3s;
+}
+.gm-tag:hover { background: rgba(70,130,220,0.25); transform: translateY(-1px); color: #d0e0f0; }
+
+/* === Sidebar: Mini Timeline === */
+.gm-mini-timeline { display: flex; flex-direction: column; gap: 0; position: relative; padding-left: 14px; }
+.gm-mini-timeline::before {
+  content: ""; position: absolute; left: 5px; top: 8px; bottom: 8px;
+  width: 1px; background: rgba(70,130,220,0.3);
+}
+.gm-mini-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; position: relative; }
+.gm-mini-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px;
+  background: rgba(70,130,220,0.5); border: 2px solid #5b8fd9; position: absolute; left: -14px;
+}
+.gm-mini-dot.active { background: #5b8fd9; box-shadow: 0 0 8px rgba(70,130,220,0.6); }
+.gm-mini-label { font-size: 0.75rem; color: #8aa0c0; line-height: 1.3; }
+.gm-mini-label strong { color: #a0c4e8; font-weight: 600; display: block; }
+
+/* === Sidebar: Language Button === */
+.gm-lang-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px; border-radius: 10px; font-size: 0.78rem; cursor: pointer;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  color: #8aa0c0; transition: all 0.3s; margin-top: auto;
+}
+.gm-lang-btn:hover { background: rgba(70,130,220,0.15); color: #a0c4e8; }
+
+/* === Main: Hero === */
+.gm-hero { margin-bottom: 36px; }
+.gm-hero-heading { font-size: 2.5rem; font-weight: 800; color: #e8f0ff; line-height: 1.2; margin-bottom: 8px; }
+.gm-neon-name {
+  color: #7cb3ff;
+  text-shadow: 0 0 10px rgba(124,179,255,0.5), 0 0 30px rgba(124,179,255,0.3), 0 0 60px rgba(124,179,255,0.15);
+}
+.gm-hero-bio { font-size: 0.95rem; color: #8aa0c0; line-height: 1.6; max-width: 600px; margin-bottom: 16px; }
+.gm-about-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.gm-about-tag {
+  padding: 6px 14px; border-radius: 20px; font-size: 0.78rem;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  color: #a0c4e8; backdrop-filter: blur(8px);
+}
+
+/* === Main: Social Icons === */
+.gm-social-row { display: flex; gap: 12px; margin: 20px 0 32px; }
+.gm-social-icon {
+  width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  color: #8aa0c0; transition: all 0.3s; cursor: pointer; backdrop-filter: blur(8px);
+}
+.gm-social-icon:hover { background: rgba(70,130,220,0.2); color: #a0c4e8; border-color: rgba(70,130,220,0.3); box-shadow: 0 0 16px rgba(70,130,220,0.2); }
+.gm-social-icon svg { width: 18px; height: 18px; }
+
+/* === Main: Contribution Grid === */
+.gm-contrib-section { margin-bottom: 36px; }
+.gm-contrib-label { font-size: 0.8rem; color: #8aa0c0; margin-bottom: 10px; }
+.gm-contrib-grid {
+  display: grid; grid-template-columns: repeat(52, 1fr); gap: 3px;
+}
+.gm-contrib-cell { aspect-ratio: 1; border-radius: 3px; transition: all 0.2s; }
+.gm-contrib-0 { background: rgba(255,255,255,0.04); }
+.gm-contrib-1 { background: rgba(70,160,200,0.2); }
+.gm-contrib-2 { background: rgba(70,160,200,0.4); }
+.gm-contrib-3 { background: rgba(70,160,200,0.6); }
+.gm-contrib-4 { background: rgba(70,160,200,0.85); }
+.gm-contrib-cell:hover { transform: scale(1.8); z-index: 2; }
+
+/* === Main: Section Heading === */
+.gm-section-heading {
+  font-size: 1.3rem; font-weight: 700; color: #e8f0ff; margin-bottom: 20px;
+  padding-bottom: 8px; border-bottom: 1px solid rgba(70,130,220,0.2);
+}
+
+/* === Main: Projects Grid === */
+.gm-projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 36px; }
+.gm-project-card {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px; padding: 20px; transition: all 0.3s; position: relative; overflow: hidden;
+}
+.gm-project-card::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.gm-project-card:hover { transform: translateY(-3px); border-color: rgba(70,130,220,0.3); box-shadow: 0 8px 24px rgba(70,130,220,0.1); }
+.gm-project-name { font-size: 1rem; font-weight: 600; color: #d0e0f0; margin-bottom: 6px; }
+.gm-project-desc { font-size: 0.82rem; color: #8aa0c0; line-height: 1.5; margin-bottom: 10px; }
+.gm-project-tech { display: flex; flex-wrap: wrap; gap: 4px; }
+.gm-project-tech span { font-size: 0.68rem; padding: 2px 8px; border-radius: 10px; background: rgba(70,130,220,0.12); color: #a0c4e8; }
+
+/* === Main: Skills Grid === */
+.gm-skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 36px; }
+.gm-skill-chip {
+  padding: 10px 14px; border-radius: 12px; font-size: 0.82rem; text-align: center;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  color: #a0c4e8; transition: all 0.3s;
+}
+.gm-skill-chip:hover { background: rgba(70,130,220,0.15); border-color: rgba(70,130,220,0.3); transform: translateY(-2px); }
+
+/* === Main: Education Grid === */
+.gm-edu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 36px; }
+.gm-edu-card {
+  padding: 18px; border-radius: 14px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  transition: all 0.3s;
+}
+.gm-edu-card:hover { border-color: rgba(70,130,220,0.2); }
+.gm-edu-school { font-size: 0.95rem; font-weight: 600; color: #d0e0f0; }
+.gm-edu-degree { font-size: 0.82rem; color: #8aa0c0; margin-top: 4px; }
+
+/* === Footer === */
+.gm-footer {
+  margin-top: 48px; padding: 24px 0; border-top: 1px solid rgba(255,255,255,0.06);
+  text-align: center; font-size: 0.78rem; color: #5a6a80;
+}
+
+/* === Mobile Responsive === */
+@media (max-width: 768px) {
+  .gm-layout { flex-direction: column; }
+  .gm-sidebar {
+    position: relative; width: 100%; min-width: 100%; flex-direction: row;
+    overflow-x: auto; gap: 10px; padding: 12px;
+  }
+  .gm-sidebar .gm-card { min-width: 200px; flex-shrink: 0; }
+  .gm-main { margin-left: 0; padding: 20px 16px; }
+  .gm-hero-heading { font-size: 1.8rem; }
+  .gm-contrib-grid { grid-template-columns: repeat(26, 1fr); }
+  .gm-projects-grid { grid-template-columns: 1fr; }
+  .gm-avatar-ring { width: 72px; height: 72px; }
+}
 `;
   } else if (theme === "ghibli") {
     bgEffects = `
+/* Ghibli background wrapper */
 .ghibli-bg {
+  min-height: 100vh;
+  color: var(--color-text);
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+/* Ghibli landscape banner at top */
+.ghibli-landscape {
+  width: 100%;
+  height: 260px;
+  background-image: url('/images/ghibli-background.png');
+  background-size: cover;
+  background-position: center bottom;
+  border-radius: 0 0 28px 28px;
   position: relative;
-  background: linear-gradient(180deg, #d4e7c5 0%, #f5efe6 30%, #f5efe6 100%);
 }
-.ghibli-bg::before {
-  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background-image: url('/images/hero-bg.png');
-  background-size: cover; background-position: center;
-  opacity: 0.12;
+.ghibli-landscape::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 0 0 28px 28px;
+  background: linear-gradient(to bottom, transparent 60%, var(--color-bg) 100%);
 }
-.ghibli-clouds {
-  position: fixed; top: 0; left: 0; right: 0; height: 200px;
-  pointer-events: none; z-index: 0; overflow: hidden;
+/* Top navigation */
+.ghibli-topnav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(245,239,230,0.88);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border-bottom: 1px solid var(--color-line);
+  transition: background-color 0.4s ease;
 }
-.ghibli-clouds::before, .ghibli-clouds::after {
-  content: ""; position: absolute; border-radius: 50%; background: rgba(255,255,255,0.6);
+.ghibli-topnav-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
-.ghibli-clouds::before {
-  width: 300px; height: 100px; top: 20px; left: 10%;
-  box-shadow: 40px -20px 0 20px rgba(255,255,255,0.5), 100px -10px 0 30px rgba(255,255,255,0.4);
-  animation: cloudDrift 40s linear infinite;
+.ghibli-logo-badge {
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 5px 16px;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition: background 0.3s, transform 0.2s;
 }
-.ghibli-clouds::after {
-  width: 250px; height: 80px; top: 40px; left: 60%;
-  box-shadow: 30px -15px 0 15px rgba(255,255,255,0.5), 80px -5px 0 25px rgba(255,255,255,0.4);
-  animation: cloudDrift 55s linear infinite reverse;
+.ghibli-logo-badge:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
 }
-@keyframes cloudDrift { 0%{transform:translateX(-10%)} 100%{transform:translateX(110vw)} }
+.ghibli-topnav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+.ghibli-topnav-link {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.ghibli-topnav-link:hover {
+  color: var(--color-accent);
+}
+.ghibli-theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--color-line);
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: color 0.3s, background 0.3s, border-color 0.3s;
+  font-size: 1rem;
+}
+.ghibli-theme-toggle:hover {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+}
+/* Content container */
+.ghibli-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+/* About Me section */
+.ghibli-about-section {
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-start;
+  margin-bottom: 3rem;
+  padding: 2.5rem;
+  background: var(--color-bg-card);
+  backdrop-filter: blur(8px) saturate(1.2);
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
+  border: 1px solid var(--color-line);
+  border-radius: 24px;
+  box-shadow: 0 4px 24px rgba(139,119,90,0.08);
+}
+.ghibli-about-text {
+  flex: 1;
+  min-width: 0;
+}
+.ghibli-about-text h2 {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 1rem;
+}
+.ghibli-about-text p {
+  font-size: 0.92rem;
+  line-height: 1.8;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+}
+/* Polaroid-style avatar */
+.ghibli-polaroid-stack {
+  flex-shrink: 0;
+  position: relative;
+  width: 200px;
+  height: 250px;
+}
+.ghibli-polaroid {
+  position: absolute;
+  width: 175px;
+  background: #fffdf7;
+  padding: 10px 10px 28px;
+  border-radius: 4px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.1);
+  transition: transform 0.4s ease;
+}
+.ghibli-polaroid:nth-child(1) {
+  top: 0; left: 10px;
+  transform: rotate(-5deg);
+  z-index: 2;
+}
+.ghibli-polaroid:nth-child(2) {
+  top: 16px; left: 24px;
+  transform: rotate(4deg);
+  z-index: 1;
+}
+.ghibli-polaroid:hover {
+  transform: rotate(0deg) scale(1.05);
+  z-index: 10;
+}
+.ghibli-polaroid img {
+  width: 100%;
+  height: 155px;
+  object-fit: cover;
+  border-radius: 2px;
+}
+/* Projects grid */
+.ghibli-projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+/* Parchment card */
+.parchment-card {
+  background: var(--color-bg-card);
+  backdrop-filter: blur(8px) saturate(1.2);
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
+  border: 1px solid var(--color-line);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(139,119,90,0.08);
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), box-shadow 0.4s ease;
+}
+.parchment-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 28px rgba(139,119,90,0.14);
+}
+/* Ghibli badge */
+.ghibli-badge {
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(125,155,95,0.12);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-line);
+  transition: transform 0.2s ease, color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  display: inline-block;
+}
+.ghibli-badge:hover {
+  transform: translateY(-2px);
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+}
+/* Avatar glow */
+.avatar-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: #a6d784;
+  filter: blur(25px);
+  opacity: 0.35;
+}
+/* Section heading with gradient underline */
+.section-heading::after {
+  background: linear-gradient(90deg, var(--color-accent), #a6d784) !important;
+}
+/* Timeline */
+.timeline-line {
+  background: linear-gradient(to bottom, var(--color-accent), #f1dbb6, transparent) !important;
+}
+.timeline-dot-active {
+  box-shadow: 0 0 0 4px var(--color-accent-soft), 0 0 12px rgba(125,155,95,0.25);
+}
+/* Dark mode */
+[data-theme="dark"] {
+  --color-bg: #1a1814;
+  --color-bg-card: rgba(35,32,26,0.9);
+  --color-bg-card-solid: #2a2620;
+  --color-bg-tag: rgba(125,155,95,0.15);
+  --color-text: #e8e0d4;
+  --color-text-muted: #a09882;
+  --color-accent: #8fb86a;
+  --color-accent-soft: rgba(143,184,106,0.15);
+  --color-accent-alt: #e8a87c;
+  --color-line: rgba(255,255,255,0.1);
+}
+[data-theme="dark"] .ghibli-topnav {
+  background: rgba(26,24,20,0.88);
+}
+[data-theme="dark"] .ghibli-polaroid {
+  background: #2a2620;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.3);
+}
+[data-theme="dark"] .ghibli-about-section {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+}
+[data-theme="dark"] .parchment-card {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+[data-theme="dark"] .parchment-card:hover {
+  box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+}
+[data-theme="dark"] .ghibli-landscape::after {
+  background: linear-gradient(to bottom, transparent 40%, var(--color-bg) 100%);
+}
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e3bba1; border-radius: 999px; }
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .ghibli-landscape { height: 160px; border-radius: 0 0 18px 18px; }
+  .ghibli-topnav-links { gap: 0.6rem; }
+  .ghibli-topnav-link { font-size: 0.75rem; }
+  .ghibli-about-section { flex-direction: column; padding: 1.5rem; gap: 1.5rem; }
+  .ghibli-polaroid-stack { width: 160px; height: 200px; margin: 0 auto; }
+  .ghibli-polaroid { width: 140px; }
+  .ghibli-polaroid img { height: 120px; }
+  .ghibli-content { padding: 1rem 1.25rem 2rem; }
+  .ghibli-projects-grid { grid-template-columns: 1fr; }
+}
+`;
+  } else if (theme === "brutalist") {
+    bgEffects = `
+/* Brutalist dark coder theme */
+.brutal-topnav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(29,29,29,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-line);
+}
+.brutal-topnav-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brutal-logo {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+}
+.brutal-logo:hover { color: var(--color-accent); }
+.brutal-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.brutal-nav-link {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--color-text);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.brutal-nav-link:hover { color: var(--color-accent); }
+.brutal-lang-toggle {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-left: 1px solid var(--color-line);
+  padding-left: 1.25rem;
+  transition: color 0.2s;
+}
+.brutal-lang-toggle:hover { color: var(--color-accent); }
+/* Hero: centered avatar + name + title + social */
+.brutal-hero {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 5rem 1.5rem 3rem;
+  text-align: center;
+}
+.brutal-avatar {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 3px solid var(--color-line);
+  overflow: hidden;
+  margin: 0 auto 2rem;
+}
+.brutal-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.brutal-hero h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+.brutal-hero-subtitle {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.25rem;
+  line-height: 1.6;
+}
+.brutal-social {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+.brutal-social a {
+  color: var(--color-text-muted);
+  transition: color 0.2s;
+}
+.brutal-social a:hover { color: var(--color-text); }
+/* Content container */
+.brutal-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+}
+/* Section heading */
+.brutal-section-heading {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-line);
+}
+/* About section */
+.brutal-about p {
+  font-size: 0.92rem;
+  line-height: 1.8;
+  color: var(--color-text-muted);
+  margin-bottom: 1rem;
+  text-align: justify;
+}
+/* Projects list */
+.brutal-project-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.brutal-project-item {
+  display: flex;
+  gap: 2rem;
+  align-items: baseline;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-line);
+  transition: background 0.2s;
+}
+.brutal-project-item:hover {
+  background: var(--color-bg-tag);
+}
+.brutal-project-date {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  min-width: 100px;
+}
+.brutal-project-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+.brutal-project-title:hover { color: var(--color-accent); }
+.brutal-project-org {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+/* Timeline list */
+.brutal-timeline-item {
+  display: flex;
+  gap: 2rem;
+  align-items: baseline;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-line);
+}
+.brutal-timeline-date {
+  font-size: 0.82rem;
+  color: var(--color-accent);
+  white-space: nowrap;
+  min-width: 100px;
+  font-weight: 500;
+}
+.brutal-timeline-text h3 {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+}
+.brutal-timeline-text p {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+/* Two-column grid */
+.brutal-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+.brutal-col h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+.brutal-col ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+.brutal-col li {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.8;
+}
+.brutal-col li strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+/* Footer */
+.brutal-footer {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  padding: 2rem 0;
+  border-top: 1px solid var(--color-line);
+  margin-top: 2rem;
+}
+.brutal-footer a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+.brutal-footer a:hover { text-decoration: underline; }
+/* Override generic heading/section-heading styles */
+.brutal-hero h1 { font-size: 2rem; margin: 0 0 0.5rem; text-transform: none; }
+.brutal-section-heading { position: relative; text-transform: none; padding-bottom: 0.75rem; }
+.brutal-section-heading::after { display: none; }
+.brutal-about p { margin-top: 0; }
+.brutal-content .section-heading { display: none; }
+.brutal-content h2,
+.brutal-content h3 { text-transform: none; letter-spacing: normal; }
+.brutal-two-col .brutal-section-heading { font-size: 1.5rem; }
+.brutal-project-item > div { min-width: 0; flex: 1; }
+.brutal-timeline-text { min-width: 0; flex: 1; }
+/* word wrap safety */
+.brutal-content * { overflow-wrap: break-word; word-break: break-word; }
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .brutal-hero { padding: 3rem 1.5rem 2rem; }
+  .brutal-avatar { width: 120px; height: 120px; }
+  .brutal-nav-links { gap: 0.75rem; }
+  .brutal-nav-link { font-size: 0.78rem; }
+  .brutal-two-col { grid-template-columns: 1fr; }
+  .brutal-project-item { gap: 1rem; }
+  .brutal-project-item { flex-direction: column; gap: 0.25rem; }
+  .brutal-timeline-item { flex-direction: column; gap: 0.25rem; }
+  .brutal-section-heading { font-size: 1.4rem; }
+}
 `;
   } else if (theme === "cinematic") {
     bgEffects = `
@@ -1491,14 +2169,250 @@ body::after {
 }
 .badge { border-radius: 999px !important; }
 `;
+  } else if (theme === "minimalist") {
+    bgEffects = `
+/* ===== Minimalist — Dark Mode ===== */
+[data-theme="dark"] {
+  --color-bg: #0a0a0f;
+  --color-bg-card: rgba(255,255,255,0.04);
+  --color-bg-card-solid: #141420;
+  --color-bg-tag: rgba(255,255,255,0.06);
+  --color-text: #f0f0f5;
+  --color-text-muted: #8888a0;
+  --color-accent: #f0f0f5;
+  --color-accent-soft: rgba(240,240,245,0.08);
+  --color-accent-alt: #a0a0b8;
+  --color-line: rgba(255,255,255,0.08);
+  --color-green: #34d399;
+}
+
+/* ===== Minimalist — Sticky Navigation ===== */
+.mini-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(255,255,255,0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--color-line);
+  padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; height: 60px;
+}
+[data-theme="dark"] .mini-nav { background: rgba(10,10,15,0.85); }
+.mini-nav-logo { font-weight: 700; font-size: 1.1rem; color: var(--color-text); letter-spacing: -0.02em; }
+.mini-nav-links { display: flex; gap: 1.5rem; align-items: center; list-style: none; }
+.mini-nav-links a, .mini-nav-links button {
+  font-size: 0.875rem; font-weight: 500; color: var(--color-text-muted);
+  text-decoration: none; transition: color 0.2s; background: none; border: none; cursor: pointer;
+}
+.mini-nav-links a:hover, .mini-nav-links button:hover { color: var(--color-text); }
+.mini-theme-toggle {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: none; border: 1px solid var(--color-line); cursor: pointer;
+  color: var(--color-text-muted); transition: color 0.2s, border-color 0.2s;
+}
+.mini-theme-toggle:hover { color: var(--color-text); border-color: var(--color-text); }
+
+/* ===== Minimalist — Hero Background Aurora ===== */
+.mini-hero-bg {
+  position: fixed; top: 0; left: 0; right: 0; height: 100vh;
+  pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 40%, rgba(200,180,255,0.3) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 65% 50%, rgba(255,200,220,0.2) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 35% 55%, rgba(200,230,255,0.2) 0%, transparent 60%);
+}
+[data-theme="dark"] .mini-hero-bg {
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 35%, rgba(100,80,180,0.15) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 60% 45%, rgba(140,60,120,0.1) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 40% 50%, rgba(60,80,160,0.08) 0%, transparent 60%);
+}
+
+/* ===== Minimalist — Hero Section ===== */
+.mini-hero {
+  position: relative; z-index: 1;
+  padding: 10rem 2rem 4rem; max-width: 800px; margin: 0 auto; text-align: center;
+}
+.mini-hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.35rem 1rem; border-radius: 999px;
+  background: var(--color-bg-card-solid); border: 1px solid var(--color-line);
+  font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 1.5rem;
+}
+.mini-hero-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-green); }
+.mini-hero h1 {
+  font-size: 3.5rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;
+  color: var(--color-text); margin-bottom: 1rem;
+}
+.mini-hero .subtitle {
+  font-size: 1.1rem; color: var(--color-text-muted); margin-bottom: 1.5rem;
+  max-width: 560px; margin-left: auto; margin-right: auto; line-height: 1.7;
+}
+.mini-hero-buttons { display: flex; gap: 0.75rem; justify-content: center; margin-top: 2rem; }
+.mini-btn-primary {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.7rem 1.6rem; border-radius: 999px;
+  background: var(--color-text); color: var(--color-bg); font-weight: 600; font-size: 0.9rem;
+  text-decoration: none; border: none; cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.mini-btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+.mini-btn-secondary {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.7rem 1.6rem; border-radius: 999px;
+  background: transparent; color: var(--color-text); font-weight: 600; font-size: 0.9rem;
+  text-decoration: none; border: 1px solid var(--color-line); cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.mini-btn-secondary:hover { border-color: var(--color-text); transform: translateY(-1px); }
+
+/* ===== Minimalist — Scroll Indicator ===== */
+.mini-scroll-indicator {
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  margin-top: 3rem; color: var(--color-text-muted); font-size: 0.75rem;
+  animation: miniBounce 2s ease-in-out infinite;
+}
+@keyframes miniBounce { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(6px); } }
+
+/* ===== Minimalist — Stats Cards ===== */
+.mini-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+  max-width: 900px; margin: 0 auto 4rem; padding: 0 2rem;
+}
+.mini-stat-card {
+  background: var(--color-bg-card); border: 1px solid var(--color-line);
+  border-radius: var(--radius-card); padding: 1.25rem 1rem; text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.mini-stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.05); }
+.mini-stat-value { font-size: 1.5rem; font-weight: 800; color: var(--color-text); margin-bottom: 0.25rem; }
+.mini-stat-label { font-size: 0.78rem; color: var(--color-text-muted); }
+
+/* ===== Minimalist — Main Content ===== */
+.mini-main { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 0 2rem 4rem; }
+.mini-stats { position: relative; z-index: 1; }
+
+/* ===== Minimalist — Section Heading Override ===== */
+.mini-main .section-heading {
+  font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem;
+  text-align: left; padding-bottom: 0; letter-spacing: -0.02em;
+}
+.mini-main .section-heading::after { display: none; }
+.mini-section-subtitle {
+  font-size: 0.9rem; color: var(--color-text-muted); margin-top: -1.5rem; margin-bottom: 2rem;
+}
+
+/* ===== Minimalist — About Section ===== */
+.mini-about {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 4rem;
+}
+.mini-about-text { font-size: 0.9rem; color: var(--color-text-muted); line-height: 1.8; }
+.mini-about-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+
+/* ===== Minimalist — Experience Cards ===== */
+.mini-timeline { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 4rem; }
+.mini-timeline-card {
+  background: var(--color-bg-card); border: 1px solid var(--color-line);
+  border-radius: var(--radius-card); padding: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.mini-timeline-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.05); }
+.mini-timeline-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
+.mini-timeline-title { font-weight: 700; font-size: 0.95rem; color: var(--color-text); }
+.mini-timeline-date {
+  font-size: 0.78rem; color: var(--color-text-muted); background: var(--color-bg-card-solid);
+  padding: 0.2rem 0.6rem; border-radius: 999px; white-space: nowrap;
+}
+.mini-timeline-desc { font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.6; margin-top: 0.5rem; }
+
+/* ===== Minimalist — Project Cards ===== */
+.mini-projects-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 4rem;
+}
+.mini-project-card {
+  background: var(--color-bg-card); border: 1px solid var(--color-line);
+  border-radius: var(--radius-card); overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.mini-project-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.05); }
+.mini-project-image { position: relative; height: 160px; overflow: hidden; background: var(--color-bg-card-solid); }
+.mini-project-body { padding: 1.25rem; }
+.mini-project-title { font-weight: 700; font-size: 0.95rem; color: var(--color-text); margin-bottom: 0.25rem; }
+.mini-project-org { font-size: 0.78rem; color: var(--color-text-muted); margin-bottom: 0.5rem; }
+.mini-project-desc { font-size: 0.8rem; color: var(--color-text-muted); line-height: 1.6; margin-bottom: 0.75rem; }
+.mini-project-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.mini-project-tag {
+  font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 999px;
+  background: var(--color-bg-card-solid); color: var(--color-text-muted);
+  border: 1px solid var(--color-line);
+}
+
+/* ===== Minimalist — Skills Grid ===== */
+.mini-skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 4rem; }
+.mini-skill-card {
+  background: var(--color-bg-card); border: 1px solid var(--color-line);
+  border-radius: var(--radius-card); padding: 1.25rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.mini-skill-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.05); }
+.mini-skill-title { font-weight: 700; font-size: 0.9rem; color: var(--color-text); margin-bottom: 0.75rem; }
+.mini-skill-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.mini-badge {
+  font-size: 0.78rem; font-weight: 500; padding: 0.25rem 0.7rem; border-radius: 999px;
+  background: var(--color-bg-card-solid); color: var(--color-text-muted);
+  border: 1px solid var(--color-line); display: inline-block;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+.mini-badge:hover { color: var(--color-text); background: var(--color-accent-soft); border-color: var(--color-text); }
+
+/* ===== Minimalist — Education ===== */
+.mini-edu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 4rem; }
+.mini-edu-card {
+  background: var(--color-bg-card); border: 1px solid var(--color-line);
+  border-radius: var(--radius-card); padding: 1.25rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.mini-edu-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.05); }
+
+/* ===== Minimalist — Footer ===== */
+.mini-footer {
+  text-align: center; padding: 2rem; font-size: 0.8rem; color: var(--color-text-muted);
+  border-top: 1px solid var(--color-line);
+  max-width: 900px; margin: 0 auto;
+}
+
+/* ===== Minimalist — Dark Mode Card Overrides ===== */
+[data-theme="dark"] .mini-stat-card:hover,
+[data-theme="dark"] .mini-timeline-card:hover,
+[data-theme="dark"] .mini-project-card:hover,
+[data-theme="dark"] .mini-skill-card:hover,
+[data-theme="dark"] .mini-edu-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+[data-theme="dark"] .mini-btn-primary { background: #f0f0f5; color: #0a0a0f; }
+[data-theme="dark"] .mini-btn-secondary { border-color: rgba(255,255,255,0.15); color: #f0f0f5; }
+[data-theme="dark"] .mini-btn-secondary:hover { border-color: rgba(255,255,255,0.4); }
+
+/* ===== Minimalist — Mobile Responsive ===== */
+@media (max-width: 768px) {
+  .mini-nav { padding: 0 1rem; }
+  .mini-nav-links { gap: 0.75rem; }
+  .mini-nav-links a, .mini-nav-links button { font-size: 0.8rem; }
+  .mini-hero { padding: 7rem 1.5rem 3rem; }
+  .mini-hero h1 { font-size: 2.2rem; }
+  .mini-stats { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; padding: 0 1.5rem; }
+  .mini-main { padding: 0 1.5rem 3rem; }
+  .mini-about { grid-template-columns: 1fr; }
+  .mini-projects-grid { grid-template-columns: 1fr; }
+  .mini-skills-grid { grid-template-columns: 1fr; }
+  .mini-edu-grid { grid-template-columns: 1fr; }
+  .mini-hero-buttons { flex-direction: column; align-items: center; }
+}
+`;
   }
 
   // Style-specific typography & heading
   let headingStyle = "";
   if (theme === "brutalist") {
     headingStyle = `
-h1, h2, h3 { font-family: var(--font-heading); text-transform: uppercase; letter-spacing: -0.02em; }
-h1 { font-size: 3rem; line-height: 1; }
+h1, h2, h3 { font-family: var(--font-heading); letter-spacing: -0.01em; }
+h1 { font-size: 2.5rem; line-height: 1.2; font-weight: 700; }
+h2 { font-size: 1.75rem; }
 `;
   } else if (theme === "cyberpunk") {
     headingStyle = `
@@ -1538,13 +2452,13 @@ h1, h2, h3 { font-family: var(--font-heading); letter-spacing: 0.04em; }
   if (theme === "brutalist") {
     badgeCSS = `
 .badge {
-  font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+  font-size: 0.75rem; font-weight: 500; font-family: var(--font-sans);
   padding: 4px 10px; border-radius: 0;
-  background: var(--color-bg-tag); color: #ffffff;
-  border: 2px solid var(--color-text);
-  display: inline-block; letter-spacing: 0.05em;
+  background: var(--color-bg-tag); color: var(--color-text-muted);
+  border: 1px solid var(--color-line);
+  display: inline-block;
 }
-.badge:hover { background: var(--color-accent); border-color: var(--color-accent); }
+.badge:hover { color: var(--color-accent); border-color: var(--color-accent); }
 `;
   } else if (theme === "cyberpunk") {
     badgeCSS = `
@@ -1572,7 +2486,7 @@ h1, h2, h3 { font-family: var(--font-heading); letter-spacing: 0.04em; }
     badgeCSS = `
 .badge {
   font-size: 0.8rem; font-weight: 500;
-  padding: 5px 12px; border-radius: ${theme === "minimalist" ? "2px" : "var(--radius-card)"};
+  padding: 5px 12px; border-radius: ${theme === "minimalist" ? "999px" : "var(--radius-card)"};
   background: var(--color-bg-tag);
   color: var(--color-text-muted);
   border: 1px solid var(--color-line);
@@ -1591,7 +2505,7 @@ h1, h2, h3 { font-family: var(--font-heading); letter-spacing: 0.04em; }
   // Avatar glow
   const avatarGlow = theme === "cyberpunk"
     ? `.avatar-glow { position: absolute; inset: -8px; border-radius: 50%; background: var(--color-accent); filter: blur(30px); opacity: 0.4; }`
-    : theme === "brutalist" || theme === "minimalist"
+    : theme === "brutalist"
     ? `.avatar-glow { display: none; }`
     : `.avatar-glow { position: absolute; inset: -8px; border-radius: 50%; background: var(--color-accent); filter: blur(30px); opacity: 0.3; }`;
 
@@ -1648,6 +2562,10 @@ function genChatCSS(): string {
 function genPage(data: WorkspaceData, layout: LayoutType, theme: ThemeStyle, features: FeatureFlags): string {
   // Theme-specific page generators
   if (theme === "tpl-resume-bold") return genBoldResumePage(data, features);
+  if (theme === "ghibli") return genGhibliPage(data, features);
+  if (theme === "minimalist") return genMinimalistPage(data, features);
+  if (theme === "brutalist") return genBrutalistPage(data, features);
+  if (theme === "glassmorphism") return genGlassmorphismPage(data, features);
 
   const family = LAYOUT_FAMILY[layout] || "single";
   switch (family) {
@@ -1670,9 +2588,8 @@ function genBoldResumePage(data: WorkspaceData, features: FeatureFlags): string 
     `import { useEffect, useRef } from "react";`,
     `import { useLanguage } from "@/components/LanguageProvider";`,
     `import Image from "next/image";`,
-    features.darkMode ? `import ThemeToggle from "@/components/ThemeToggle";` : "",
-    features.chatbot ? `import ChatBot from "@/components/ChatBot";` : "",
-    features.share ? `import SharePoster from "@/components/SharePoster";` : "",
+    `import ChatBot from "@/components/ChatBot";`,
+    `import SharePoster from "@/components/SharePoster";`,
   ].filter(Boolean).join("\n");
 
   // Build marquee items from skills
@@ -1716,13 +2633,10 @@ export default function Home() {
       <nav className="bold-nav">
         <div className="logo">{lang === "zh" ? "${data.name}" : "${data.nameEn || data.name}"}</div>
         <ul className="nav-links">
-          <li><a href="#experience">{t.nav.timeline}</a></li>
-          <li><a href="#skills">{t.nav.skills}</a></li>
-          <li><a href="#projects">{t.nav.projects}</a></li>
-          <li><a href="#education">{t.nav.education}</a></li>
-          <li><a href="#contact">{t.nav.contact}</a></li>
+          {t.availableSections.filter(s => s !== "about").map((id) => (
+            <li key={id}><a href={\`#\${id === "timeline" ? "experience" : id}\`}>{t.sections[id as keyof typeof t.sections] || id}</a></li>
+          ))}
           <li><button onClick={toggle}>{lang === "zh" ? "EN" : "\\u4e2d"}</button></li>
-          ${features.darkMode ? `<li><ThemeToggle /></li>` : ""}
         </ul>
       </nav>
 
@@ -1732,11 +2646,8 @@ export default function Home() {
         {/* Hero */}
         <section className="bold-hero">
           <div className="bold-hero-text">
-            <span className="bold-hero-label">{lang === "zh" ? "// \\u5F00\\u653E\\u5408\\u4F5C" : "// Available for hire"}</span>
-            <h1>
-              {lang === "zh" ? "\\u55E8\\uFF0C\\u6211\\u662F" : "Hey, I'm"}<br />
-              <span className="highlight">{lang === "zh" ? "${data.name}" : "${data.nameEn || data.name}"}</span>
-            </h1>
+            <span className="bold-hero-label">// {t.ui.availableForHire}</span>
+            <h1>{t.ui.heyIm}</h1>
             <p className="bold-hero-subtitle">
               {lang === "zh" ? "${data.title}" : "${data.titleEn || data.title}"}
             </p>
@@ -1764,7 +2675,22 @@ export default function Home() {
           </div>
         </div>
 
+        {/* About */}
+        <section id="about" className="bold-reveal mb-20">
+          <div className="bold-section-header">
+            <span className="bold-section-number">00</span>
+            <h2 className="bold-section-title">{t.sections.about}</h2>
+          </div>
+          <div className="card p-6">
+            <p className="text-text-muted leading-relaxed mb-4">{t.about.text}</p>
+            <div className="flex flex-wrap gap-2">
+              {t.about.tags.map((tag) => (<span key={tag} className="badge">{tag}</span>))}
+            </div>
+          </div>
+        </section>
+
         {/* Experience */}
+        {t.timeline.length > 0 && (
         <section id="experience" className="bold-reveal mb-20">
           <div className="bold-section-header">
             <span className="bold-section-number">01</span>
@@ -1780,8 +2706,10 @@ export default function Home() {
             ))}
           </div>
         </section>
+        )}
 
         {/* Skills */}
+        {t.skills.length > 0 && (
         <section id="skills" className="bold-reveal mb-20">
           <div className="bold-section-header">
             <span className="bold-section-number">02</span>
@@ -1798,8 +2726,10 @@ export default function Home() {
             ))}
           </div>
         </section>
+        )}
 
         {/* Projects */}
+        {t.projects.length > 0 && (
         <section id="projects" className="bold-reveal mb-20">
           <div className="bold-section-header">
             <span className="bold-section-number">03</span>
@@ -1823,8 +2753,10 @@ export default function Home() {
             ))}
           </div>
         </section>
+        )}
 
         {/* Education */}
+        {t.education.length > 0 && (
         <section id="education" className="bold-reveal mb-20">
           <div className="bold-section-header">
             <span className="bold-section-number">04</span>
@@ -1843,13 +2775,12 @@ export default function Home() {
             ))}
           </div>
         </section>
+        )}
 
         {/* Contact */}
         <section id="contact" className="bold-contact bold-reveal">
-          <h2>
-            {lang === "zh" ? <>\\u4E00\\u8D77\\u521B\\u9020<br /><span className="highlight">\\u7CBE\\u5F69\\u4F5C\\u54C1</span></> : <>Let's Build<br /><span className="highlight">Something Cool</span></>}
-          </h2>
-          <p>{lang === "zh" ? "\\u5F00\\u653E\\u5408\\u4F5C\\u4E2D\\uFF0C\\u6B22\\u8FCE\\u8054\\u7CFB" : "Currently open for opportunities."}</p>
+          <h2>{t.ui.letsCollaborate}</h2>
+          <p>{t.ui.openForOpportunities}</p>
           <div className="bold-contact-links">
             <a href="mailto:${data.email}" className="contact-chip">${data.email}</a>
             ${data.github ? `<a href="${data.github}" target="_blank" className="contact-chip">GitHub</a>` : ""}
@@ -1865,9 +2796,774 @@ export default function Home() {
         <p>{t.footer}</p>
       </footer>
 
-      ${features.share ? "<SharePoster />" : ""}
-      ${features.chatbot ? "<ChatBot />" : ""}
+      <SharePoster />
+      <ChatBot />
     </div>
+  );
+}
+`;
+}
+
+/**
+ * Dedicated page generator for the Minimalist theme.
+ * Reference design: sticky nav, large hero, stats cards, about, experience timeline, project cards, skills, education.
+ */
+function genMinimalistPage(data: WorkspaceData, features: FeatureFlags): string {
+  // Compute stats from data
+  const projectCount = data.projects.length;
+  const skillCount = data.skills.reduce((acc, g) => acc + g.skills.length, 0);
+  const timelineCount = data.timeline.length;
+  const eduCount = data.education.length;
+
+  return `"use client";
+
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { useLanguage } from "@/components/LanguageProvider";
+import ChatBot from "@/components/ChatBot";
+import SharePoster from "@/components/SharePoster";
+
+export default function Home() {
+  const { lang, t, toggle } = useLanguage();
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (saved === "dark" || (!saved && prefersDark)) setDark(true);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    localStorage.setItem("theme", dark ? "dark" : "light");
+  }, [dark]);
+
+  return (
+    <>
+      {/* ===== STICKY NAVIGATION ===== */}
+      <nav className="mini-nav">
+        <span className="mini-nav-logo">{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</span>
+        <ul className="mini-nav-links">
+          {t.availableSections.filter(s => s !== "contact").map((id) => (
+            <li key={id}><a href={\`#\${id === "timeline" ? "experience" : id}\`}>{t.sections[id as keyof typeof t.sections] || id}</a></li>
+          ))}
+          <li><button onClick={toggle} className="text-xs border border-line rounded-full px-2.5 py-1 hover:border-text transition-colors">{lang === "zh" ? "EN" : "\\u4e2d"}</button></li>
+          <li>
+            <button onClick={() => setDark(!dark)} className="mini-theme-toggle" aria-label="Toggle theme">
+              {dark ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+              )}
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      {/* Hero aurora background */}
+      <div className="mini-hero-bg" />
+
+      {/* ===== HERO SECTION ===== */}
+      <section className="mini-hero">
+        <div className="relative w-20 h-20 mx-auto mb-5">
+          <Image src="/images/avatar.png" alt="" width={80} height={80} className="w-full h-full rounded-full object-cover border-2 border-line shadow-md" unoptimized />
+        </div>
+        <div className="mini-hero-badge">
+          <span className="dot" />
+          <span>{t.ui.welcomeToSite}</span>
+        </div>
+        <h1>{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</h1>
+        <p className="subtitle">{lang === "zh" ? "${data.title}" : "${data.titleEn}"}</p>
+        <p className="text-sm text-text-muted max-w-lg mx-auto leading-relaxed">{t.about.text}</p>
+        <div className="mini-hero-buttons">
+          ${data.github ? `<a href="${data.github}" target="_blank" className="mini-btn-primary">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            GitHub
+          </a>` : ""}
+          <a href="mailto:${data.email}" className="mini-btn-secondary">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            {t.ui.contactMe}
+          </a>
+        </div>
+        <div className="mini-scroll-indicator">
+          <span>{t.ui.scrollDown}</span>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+        </div>
+      </section>
+
+      {/* ===== STATS CARDS ===== */}
+      <div className="mini-stats">
+        <div className="mini-stat-card">
+          <div className="mini-stat-value">${projectCount}</div>
+          <div className="mini-stat-label">{t.ui.statLabels.projects}</div>
+        </div>
+        <div className="mini-stat-card">
+          <div className="mini-stat-value">${skillCount}</div>
+          <div className="mini-stat-label">{t.ui.statLabels.skills}</div>
+        </div>
+        <div className="mini-stat-card">
+          <div className="mini-stat-value">${timelineCount}</div>
+          <div className="mini-stat-label">{t.ui.statLabels.experiences}</div>
+        </div>
+        <div className="mini-stat-card">
+          <div className="mini-stat-value">${eduCount}</div>
+          <div className="mini-stat-label">{t.ui.statLabels.education}</div>
+        </div>
+      </div>
+
+      {/* ===== MAIN CONTENT ===== */}
+      <main className="mini-main">
+
+        {/* About Section */}
+        <section id="about" className="mb-16">
+          <h2 className="section-heading">{t.sections.about}</h2>
+          <p className="mini-section-subtitle">{t.ui.sectionSubtitles.about}</p>
+          <div className="mini-about">
+            <div>
+              <p className="mini-about-text">{t.about.text}</p>
+              <div className="mini-about-tags">
+                {t.about.tags.map((tag) => (<span key={tag} className="mini-badge">{tag}</span>))}
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 text-sm text-text-muted">
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span>{lang === "zh" ? "${data.location}" : "${data.locationEn}"}</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm text-text-muted">
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                <span>${data.email}</span>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-4">
+                {t.hero.tags.slice(0, 6).map((tag) => (<span key={tag} className="mini-badge">{tag}</span>))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Experience / Timeline Section */}
+        {t.timeline.length > 0 && (
+        <section id="experience" className="mb-16">
+          <h2 className="section-heading">{t.sections.timeline}</h2>
+          <p className="mini-section-subtitle">{t.ui.sectionSubtitles.timeline}</p>
+          <div className="mini-timeline">
+            {t.timeline.map((item) => (
+              <div key={item.title} className="mini-timeline-card">
+                <div className="mini-timeline-header">
+                  <h3 className="mini-timeline-title">{item.title}</h3>
+                  <span className="mini-timeline-date">{item.date}</span>
+                </div>
+                <p className="mini-timeline-desc">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+        )}
+
+        {/* Projects Section */}
+        {t.projects.length > 0 && (
+        <section id="projects" className="mb-16">
+          <h2 className="section-heading">{t.sections.projects}</h2>
+          <p className="mini-section-subtitle">{t.ui.sectionSubtitles.projects}</p>
+          <div className="mini-projects-grid">
+            {t.projects.map((p) => (
+              <div key={p.title} className="mini-project-card">
+                <div className="mini-project-image">
+                  <Image src={p.image} alt={p.title} fill className="object-cover" unoptimized />
+                </div>
+                <div className="mini-project-body">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <div>
+                      <h3 className="mini-project-title">{p.title}</h3>
+                      <p className="mini-project-org">{p.org}</p>
+                    </div>
+                    {p.link && <a href={p.link} target="_blank" className="text-xs text-text-muted hover:text-text transition-colors shrink-0">GitHub &rarr;</a>}
+                  </div>
+                  <p className="mini-project-desc line-clamp-2">{p.desc}</p>
+                  <div className="mini-project-tags">
+                    {p.tags.slice(0, 4).map((tag) => (<span key={tag} className="mini-project-tag">{tag}</span>))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+        )}
+
+        {/* Skills Section */}
+        {t.skills.length > 0 && (
+        <section id="skills" className="mb-16">
+          <h2 className="section-heading">{t.sections.skills}</h2>
+          <p className="mini-section-subtitle">{t.ui.sectionSubtitles.skills}</p>
+          <div className="mini-skills-grid">
+            {t.skills.map((group) => (
+              <div key={group.title} className="mini-skill-card">
+                <h3 className="mini-skill-title">{group.title}</h3>
+                <div className="mini-skill-tags">
+                  {group.skills.map((s) => (<span key={s} className="mini-badge">{s}</span>))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+        )}
+
+        {/* Education Section */}
+        {t.education.length > 0 && (
+        <section id="education" className="mb-16">
+          <h2 className="section-heading">{t.sections.education}</h2>
+          <div className="mini-edu-grid">
+            {t.education.map((edu) => (
+              <div key={edu.school} className="mini-edu-card">
+                <h3 className="font-bold text-sm text-text">{edu.school}</h3>
+                <p className="text-xs text-text-muted mt-1">{edu.degree}</p>
+                <ul className="mt-3 space-y-1.5">
+                  {edu.highlights.map((h) => (
+                    <li key={h} className="text-xs text-text-muted flex items-start gap-2">
+                      <span className="text-text mt-0.5">&#8226;</span>{h}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+        )}
+
+        {/* Footer */}
+        <footer className="mini-footer">{t.footer}</footer>
+      </main>
+
+      <SharePoster />
+      <ChatBot />
+    </>
+  );
+}
+`;
+}
+
+/**
+ * Dedicated page generator for the Ghibli theme.
+ * Warm parchment aesthetic with top nav, landscape banner, polaroid-style about section.
+ */
+function genGhibliPage(data: WorkspaceData, features: FeatureFlags): string {
+  return `"use client";
+
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { useLanguage } from "@/components/LanguageProvider";
+import ChatBot from "@/components/ChatBot";
+import SharePoster from "@/components/SharePoster";
+
+export default function Home() {
+  const { lang, t, toggle } = useLanguage();
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("ghibli-dark");
+    if (saved !== null) {
+      setDark(saved === "1");
+    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      setDark(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    localStorage.setItem("ghibli-dark", dark ? "1" : "0");
+  }, [dark]);
+
+  return (
+    <>
+      {/* ===== TOP NAVIGATION ===== */}
+      <nav className="ghibli-topnav">
+        <div className="ghibli-topnav-inner">
+          <a href="#" className="ghibli-logo-badge">{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</a>
+          <div className="ghibli-topnav-links">
+            {t.availableSections.filter(s => s !== "contact").map((id) => (
+              <a key={id} href={\`#\${id}\`} className="ghibli-topnav-link">{t.sections[id as keyof typeof t.sections] || id}</a>
+            ))}
+            <button onClick={() => setDark(!dark)} className="ghibli-theme-toggle" title="Toggle theme">
+              {dark ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+              )}
+            </button>
+            <button onClick={toggle} className="ghibli-theme-toggle" title="Toggle language" style={{fontSize: "0.75rem", fontWeight: 600}}>
+              {lang === "zh" ? "EN" : "\\u4e2d"}
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* ===== GHIBLI LANDSCAPE BANNER ===== */}
+      <div className="ghibli-landscape" />
+
+      {/* ===== MAIN CONTENT ===== */}
+      <div className="ghibli-content">
+        {/* About Me Section */}
+        <section id="about" className="ghibli-about-section">
+          <div className="ghibli-about-text">
+            <h2>{t.sections.about}</h2>
+            <p>{lang === "zh" ? "${data.title}" : "${data.titleEn}"}</p>
+            <p>{t.about.text}</p>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {t.about.tags.map((tag) => (<span key={tag} className="ghibli-badge">{tag}</span>))}
+            </div>
+            <div className="flex items-center gap-3 mt-4">
+              ${data.github ? `<a href="${data.github}" target="_blank" className="contact-icon">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" /></svg>
+              </a>` : ""}
+              <a href="mailto:${data.email}" className="contact-icon">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+              </a>
+              ${data.linkedin ? `<a href="${data.linkedin}" target="_blank" className="contact-icon">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
+              </a>` : ""}
+            </div>
+          </div>
+          <div className="ghibli-polaroid-stack">
+            <div className="ghibli-polaroid">
+              <Image src="/images/avatar.png" alt="" width={175} height={155} className="w-full" style={{height: 155, objectFit: "cover"}} unoptimized />
+            </div>
+            <div className="ghibli-polaroid">
+              <Image src="/images/ghibli-background.png" alt="" width={175} height={155} className="w-full" style={{height: 155, objectFit: "cover"}} unoptimized />
+            </div>
+          </div>
+        </section>
+
+        {/* Projects */}
+        {t.projects.length > 0 && (
+        <section id="projects" className="mb-12">
+          <h2 className="section-heading">{t.sections.projects}</h2>
+          <div className="ghibli-projects-grid">
+            {t.projects.map((p) => (
+              <div key={p.title} className="parchment-card">
+                <div className="relative h-36 overflow-hidden">
+                  <Image src={p.image} alt={p.title} fill className="object-cover" unoptimized />
+                </div>
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-1">
+                    <div>
+                      <h3 className="font-bold text-sm text-text">{p.title}</h3>
+                      <p className="text-xs text-text-muted">{p.org}</p>
+                    </div>
+                    {p.badge && <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent/15 text-accent font-medium">{p.badge}</span>}
+                    {p.link && <a href={p.link} target="_blank" className="text-xs text-accent hover:underline">GitHub &rarr;</a>}
+                  </div>
+                  <p className="text-xs text-text-muted mt-2 leading-relaxed line-clamp-2">{p.desc}</p>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {p.tags.slice(0, 3).map((tag) => (<span key={tag} className="ghibli-badge text-[11px]">{tag}</span>))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+        )}
+
+        {/* Timeline */}
+        {t.timeline.length > 0 && (
+        <section id="timeline" className="mb-12">
+          <h2 className="section-heading">{t.sections.timeline}</h2>
+          <div className="relative pl-6">
+            <div className="timeline-line" />
+            <div className="space-y-5">
+              {t.timeline.map((item) => (
+                <div key={item.title} className="relative flex gap-4">
+                  <div className={\`timeline-dot \${item.active ? "timeline-dot-active" : ""}\`} />
+                  <div className="parchment-card flex-1 p-4">
+                    <span className="text-xs font-semibold text-accent">{item.date}</span>
+                    <h3 className="font-bold text-sm text-text mt-1">{item.title}</h3>
+                    <p className="text-xs text-text-muted mt-1">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+        )}
+
+        {/* Skills */}
+        {t.skills.length > 0 && (
+        <section id="skills" className="mb-12">
+          <h2 className="section-heading">{t.sections.skills}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {t.skills.map((group) => (
+              <div key={group.title} className="parchment-card p-4">
+                <h3 className="font-bold text-sm text-text mb-3">{group.title}</h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {group.skills.map((s) => (<span key={s} className="ghibli-badge">{s}</span>))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+        )}
+
+        {/* Education */}
+        {t.education.length > 0 && (
+        <section id="education" className="mb-12">
+          <h2 className="section-heading">{t.sections.education}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {t.education.map((edu) => (
+              <div key={edu.school} className="parchment-card p-5">
+                <h3 className="font-bold text-sm text-text">{edu.school}</h3>
+                <p className="text-xs text-text-muted mt-1">{edu.degree}</p>
+                <ul className="mt-3 space-y-1.5">
+                  {edu.highlights.map((h) => (
+                    <li key={h} className="text-xs text-text-muted flex items-start gap-2">
+                      <span className="text-accent mt-0.5">&#8226;</span>{h}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+        )}
+
+        {/* Footer */}
+        <footer className="text-center text-xs text-text-muted py-8 border-t border-line">{t.footer}</footer>
+      </div>
+
+      <SharePoster />
+      <ChatBot />
+    </>
+  );
+}
+`;
+}
+
+/**
+ * Dedicated page generator for the Brutalist theme.
+ * Dark coder-style: centered hero, clean typography, date+title project list.
+ */
+function genBrutalistPage(data: WorkspaceData, features: FeatureFlags): string {
+  return `"use client";
+
+import Image from "next/image";
+import { useLanguage } from "@/components/LanguageProvider";
+import ChatBot from "@/components/ChatBot";
+import SharePoster from "@/components/SharePoster";
+
+export default function Home() {
+  const { lang, t } = useLanguage();
+
+  return (
+    <>
+      {/* ===== TOP NAVIGATION ===== */}
+      <nav className="brutal-topnav">
+        <div className="brutal-topnav-inner">
+          <a href="#" className="brutal-logo">{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</a>
+          <div className="brutal-nav-links">
+            {t.availableSections.filter(s => s !== "contact").map((id) => (
+              <a key={id} href={\`#\${id}\`} className="brutal-nav-link">{t.sections[id as keyof typeof t.sections] || id}</a>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      {/* ===== HERO ===== */}
+      <header className="brutal-hero">
+        <div className="brutal-avatar">
+          <Image src="/images/avatar.png" alt="" width={160} height={160} unoptimized />
+        </div>
+        <h1>{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</h1>
+        <p className="brutal-hero-subtitle">{lang === "zh" ? "${data.title}" : "${data.titleEn}"}</p>
+        <p className="brutal-hero-subtitle">{lang === "zh" ? "${data.location}" : "${data.locationEn}"}</p>
+        <div className="brutal-social">
+          ${data.github ? `<a href="${data.github}" target="_blank" title="GitHub">
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" /></svg>
+          </a>` : ""}
+          ${data.linkedin ? `<a href="${data.linkedin}" target="_blank" title="LinkedIn">
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
+          </a>` : ""}
+          <a href="mailto:${data.email}" title="Email">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+          </a>
+        </div>
+      </header>
+
+      {/* ===== MAIN CONTENT ===== */}
+      <div className="brutal-content">
+        {/* About */}
+        <section id="about" className="mb-12 brutal-about">
+          <h2 className="brutal-section-heading">{t.sections.about}</h2>
+          <p>{t.about.text}</p>
+          <div className="flex flex-wrap gap-2 mt-4">
+            {t.about.tags.map((tag) => (<span key={tag} className="badge">{tag}</span>))}
+          </div>
+        </section>
+
+        {/* Projects */}
+        {t.projects.length > 0 && (
+        <section id="projects" className="mb-12">
+          <h2 className="brutal-section-heading">{t.sections.projects}</h2>
+          <div className="brutal-project-list">
+            {t.projects.map((p) => (
+              <div key={p.title} className="brutal-project-item">
+                <span className="brutal-project-date">{p.org}</span>
+                <div>
+                  <span className="brutal-project-title">
+                    {p.link ? <a href={p.link} target="_blank">{p.title}</a> : p.title}
+                  </span>
+                  {p.badge && <span className="ml-2 text-[11px] text-accent">[{p.badge}]</span>}
+                  <p className="text-xs text-text-muted mt-0.5 line-clamp-1">{p.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+        )}
+
+        {/* Timeline */}
+        {t.timeline.length > 0 && (
+        <section id="timeline" className="mb-12">
+          <h2 className="brutal-section-heading">{t.sections.timeline}</h2>
+          <div>
+            {t.timeline.map((item) => (
+              <div key={item.title} className="brutal-timeline-item">
+                <span className="brutal-timeline-date">{item.date}</span>
+                <div className="brutal-timeline-text">
+                  <h3>{item.title}</h3>
+                  <p>{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+        )}
+
+        {/* Skills & Education side by side */}
+        {(t.skills.length > 0 || t.education.length > 0) && (
+        <div className="brutal-two-col mb-12">
+          {t.skills.length > 0 && (
+          <section id="skills">
+            <h2 className="brutal-section-heading">{t.sections.skills}</h2>
+            {t.skills.map((group) => (
+              <div key={group.title} className="brutal-col mb-4">
+                <h3>{group.title}</h3>
+                <ul>
+                  {group.skills.map((s) => (<li key={s}>{s}</li>))}
+                </ul>
+              </div>
+            ))}
+          </section>
+          )}
+          {t.education.length > 0 && (
+          <section id="education">
+            <h2 className="brutal-section-heading">{t.sections.education}</h2>
+            {t.education.map((edu) => (
+              <div key={edu.school} className="brutal-col mb-4">
+                <h3>{edu.school}</h3>
+                <p className="text-xs text-text-muted mb-1">{edu.degree}</p>
+                <ul>
+                  {edu.highlights.map((h) => (<li key={h}>{h}</li>))}
+                </ul>
+              </div>
+            ))}
+          </section>
+          )}
+        </div>
+        )}
+
+        {/* Footer */}
+        <footer className="brutal-footer">{t.footer}</footer>
+      </div>
+
+      <SharePoster />
+      <ChatBot />
+    </>
+  );
+}
+`;
+}
+
+/**
+ * Dedicated page generator for the Glassmorphism theme.
+ * Cosmic sidebar navigation page with deep space gradient, glass cards,
+ * neon hero heading, contribution grid, project/skill cards.
+ */
+function genGlassmorphismPage(data: WorkspaceData, features: FeatureFlags): string {
+  return `"use client";
+
+import { useState, useMemo } from "react";
+import Image from "next/image";
+import { useLanguage } from "@/components/LanguageProvider";
+import ChatBot from "@/components/ChatBot";
+import SharePoster from "@/components/SharePoster";
+
+export default function Home() {
+  const { lang, t, toggle } = useLanguage();
+
+  const contribGrid = useMemo(() => {
+    const seed = 42;
+    const cells: number[] = [];
+    let s = seed;
+    for (let i = 0; i < 52 * 7; i++) {
+      s = (s * 16807 + 0) % 2147483647;
+      const r = s / 2147483647;
+      cells.push(r < 0.35 ? 0 : r < 0.55 ? 1 : r < 0.75 ? 2 : r < 0.9 ? 3 : 4);
+    }
+    return cells;
+  }, []);
+
+  return (
+    <>
+      <div className="glass-bg"><div className="blob blob-1" /><div className="blob blob-2" /><div className="blob blob-3" /><div className="blob blob-4" /></div>
+
+      <div className="gm-layout">
+        {/* ===== SIDEBAR ===== */}
+        <aside className="gm-sidebar">
+          {/* Avatar Card */}
+          <div className="gm-card gm-avatar-wrap">
+            <div className="gm-avatar-ring">
+              <div className="gm-avatar-glow" />
+              <Image src="/images/avatar.png" alt="" width={100} height={100} unoptimized />
+            </div>
+            <div className="gm-sidebar-name">{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</div>
+            <div className="gm-sidebar-title">{lang === "zh" ? "${data.title}" : "${data.titleEn}"}</div>
+          </div>
+
+          {/* Info Card */}
+          <div className="gm-card">
+            ${data.location ? `<div className="gm-info-row">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              <span>${data.location}</span>
+            </div>` : ""}
+            <div className="gm-info-row">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+              <span>{lang === "zh" ? "${data.title}" : "${data.titleEn}"}</span>
+            </div>
+            <div className="gm-info-row">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+              <span>${data.email}</span>
+            </div>
+          </div>
+
+          {/* Tags Card */}
+          <div className="gm-card">
+            <div className="gm-tag-wrap">
+              {t.hero.tags.map((tag) => (<span key={tag} className="gm-tag">{tag}</span>))}
+            </div>
+          </div>
+
+          {/* Mini Timeline Card */}
+          {t.timeline.length > 0 && (
+          <div className="gm-card">
+            <div className="gm-mini-timeline">
+              {t.timeline.slice(0, 4).map((item, i) => (
+                <div key={i} className="gm-mini-item">
+                  <div className={\`gm-mini-dot \${i === 0 ? "active" : ""}\`} />
+                  <div className="gm-mini-label">
+                    <strong>{item.title}</strong>
+                    <span>{item.date}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          )}
+
+          {/* Language Toggle */}
+          <button onClick={toggle} className="gm-lang-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+            {lang === "zh" ? "English" : "\\u4e2d\\u6587"}
+          </button>
+        </aside>
+
+        {/* ===== MAIN CONTENT ===== */}
+        <main className="gm-main">
+          {/* Hero */}
+          <section className="gm-hero" id="about">
+            <h1 className="gm-hero-heading">
+              {lang === "zh" ? "Hello \\u6211\\u662f " : "Hello I'm "}
+              <span className="gm-neon-name">{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</span>
+            </h1>
+            <p className="gm-hero-bio">{t.about.text}</p>
+            <div className="gm-about-tags">
+              {t.about.tags.map((tag) => (<span key={tag} className="gm-about-tag">{tag}</span>))}
+            </div>
+          </section>
+
+          {/* Social Icons */}
+          <div className="gm-social-row">
+            ${data.github ? `<a href="${data.github}" target="_blank" rel="noopener noreferrer" className="gm-social-icon" title="GitHub">
+              <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            </a>` : ""}
+            <a href="mailto:${data.email}" className="gm-social-icon" title="Email">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+            </a>
+            ${data.linkedin ? `<a href="${data.linkedin}" target="_blank" rel="noopener noreferrer" className="gm-social-icon" title="LinkedIn">
+              <svg fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            </a>` : ""}
+          </div>
+
+          {/* Contribution Grid */}
+          <div className="gm-contrib-section gm-card">
+            <div className="gm-contrib-label">{lang === "zh" ? "\\u6d3b\\u8dc3\\u5ea6" : "Activity"}</div>
+            <div className="gm-contrib-grid">
+              {contribGrid.map((level, i) => (
+                <div key={i} className={\`gm-contrib-cell gm-contrib-\${level}\`} />
+              ))}
+            </div>
+          </div>
+
+          {/* Projects */}
+          {t.projects.length > 0 && (
+          <section id="projects" style={{ marginBottom: 36 }}>
+            <h2 className="gm-section-heading">{t.sections.projects}</h2>
+            <div className="gm-projects-grid">
+              {t.projects.map((p, i) => (
+                <div key={i} className="gm-project-card">
+                  <div className="gm-project-name">{p.title}</div>
+                  <div className="gm-project-desc">{p.desc}</div>
+                  <div className="gm-project-tech">
+                    {p.tags.map((tag) => (<span key={tag}>{tag}</span>))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+          )}
+
+          {/* Skills */}
+          {t.skills.length > 0 && (
+          <section id="skills" style={{ marginBottom: 36 }}>
+            <h2 className="gm-section-heading">{t.sections.skills}</h2>
+            <div className="gm-skills-grid">
+              {t.skills.flatMap((group) => group.skills).map((s) => (
+                <div key={s} className="gm-skill-chip">{s}</div>
+              ))}
+            </div>
+          </section>
+          )}
+
+          {/* Education */}
+          {t.education.length > 0 && (
+          <section id="education" style={{ marginBottom: 36 }}>
+            <h2 className="gm-section-heading">{t.sections.education}</h2>
+            <div className="gm-edu-grid">
+              {t.education.map((edu, i) => (
+                <div key={i} className="gm-edu-card">
+                  <div className="gm-edu-school">{edu.school}</div>
+                  <div className="gm-edu-degree">{edu.degree}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+          )}
+
+          {/* Footer */}
+          <footer className="gm-footer">{t.footer}</footer>
+        </main>
+      </div>
+
+      <SharePoster />
+      <ChatBot />
+    </>
   );
 }
 `;
@@ -1886,10 +3582,8 @@ function genSingleColumnPage(data: WorkspaceData, layout: LayoutType, theme: The
     reactImport,
     `import { useLanguage } from "@/components/LanguageProvider";`,
     `import Image from "next/image";`,
-    features.typewriter ? `import TypewriterHero from "@/components/TypewriterHero";` : "",
-    features.darkMode ? `import ThemeToggle from "@/components/ThemeToggle";` : "",
-    features.chatbot ? `import ChatBot from "@/components/ChatBot";` : "",
-    features.share ? `import SharePoster from "@/components/SharePoster";` : "",
+    `import ChatBot from "@/components/ChatBot";`,
+    `import SharePoster from "@/components/SharePoster";`,
     theme === "cyberpunk" ? `import ParticleBackground from "@/components/ParticleBackground";` : "",
     theme === "retro" ? `import GrainOverlay from "@/components/GrainOverlay";` : "",
   ].filter(Boolean).join("\n");
@@ -1908,17 +3602,15 @@ function genSingleColumnPage(data: WorkspaceData, layout: LayoutType, theme: The
             <button onClick={toggle} className="text-sm text-text-muted hover:text-text px-3 py-1.5 rounded-full border border-line bg-bg/80 backdrop-blur-xl transition-colors">
               {lang === "zh" ? "EN" : "\\u4e2d"}
             </button>
-            ${features.darkMode ? "<ThemeToggle />" : ""}
             <button onClick={() => setMenuOpen(!menuOpen)} className="hamburger bg-bg/80 backdrop-blur-xl rounded-full border border-line">
               <span /><span /><span />
             </button>
           </div>
         </div>
         <div className={\`mobile-menu \${menuOpen ? "open" : ""}\`}>
-          <a href="#projects" onClick={() => setMenuOpen(false)}>{t.nav.projects}</a>
-          <a href="#timeline" onClick={() => setMenuOpen(false)}>{t.nav.timeline}</a>
-          <a href="#skills" onClick={() => setMenuOpen(false)}>{t.nav.skills}</a>
-          <a href="#education" onClick={() => setMenuOpen(false)}>{t.nav.education}</a>
+          {t.availableSections.filter(s => s !== "about" && s !== "contact").map((id) => (
+            <a key={id} href={\`#\${id}\`} onClick={() => setMenuOpen(false)}>{t.sections[id as keyof typeof t.sections] || id}</a>
+          ))}
         </div>`;
   } else if (layout === "fixed-nav") {
     navbar = `
@@ -1927,16 +3619,14 @@ function genSingleColumnPage(data: WorkspaceData, layout: LayoutType, theme: The
           <ul>
             <li><span className="font-bold text-text">{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</span></li>
             <li className="flex-1" />
-            <li><a href="#projects">{t.nav.projects}</a></li>
-            <li><a href="#timeline">{t.nav.timeline}</a></li>
-            <li><a href="#skills">{t.nav.skills}</a></li>
-            <li><a href="#education">{t.nav.education}</a></li>
+            {t.availableSections.filter(s => s !== "about" && s !== "contact").map((id) => (
+              <li key={id}><a href={\`#\${id}\`}>{t.sections[id as keyof typeof t.sections] || id}</a></li>
+            ))}
             <li>
               <button onClick={toggle} className="text-sm text-text-muted hover:text-accent px-3 py-1 rounded-full border border-line transition-colors">
                 {lang === "zh" ? "EN" : "\\u4e2d"}
               </button>
             </li>
-            ${features.darkMode ? "<li><ThemeToggle /></li>" : ""}
           </ul>
         </nav>`;
   } else {
@@ -1946,17 +3636,15 @@ function genSingleColumnPage(data: WorkspaceData, layout: LayoutType, theme: The
           <div className="max-w-[1100px] mx-auto px-6 h-16 flex items-center justify-between">
             <span className="font-bold text-lg">{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</span>
             <div className="hidden md:flex items-center gap-6">
-              <a href="#projects" className="text-sm text-text-muted hover:text-text transition-colors">{t.nav.projects}</a>
-              <a href="#timeline" className="text-sm text-text-muted hover:text-text transition-colors">{t.nav.timeline}</a>
-              <a href="#skills" className="text-sm text-text-muted hover:text-text transition-colors">{t.nav.skills}</a>
-              <a href="#education" className="text-sm text-text-muted hover:text-text transition-colors">{t.nav.education}</a>
+              {t.availableSections.filter(s => s !== "about" && s !== "contact").map((id) => (
+                <a key={id} href={\`#\${id}\`} className="text-sm text-text-muted hover:text-text transition-colors">{t.sections[id as keyof typeof t.sections] || id}</a>
+              ))}
             </div>
             <div className="flex items-center gap-2">
               <button onClick={toggle} className="text-sm text-text-muted hover:text-text px-3 py-1.5 rounded-full border border-line transition-colors">
                 {lang === "zh" ? "EN" : "\\u4e2d"}
               </button>
-              ${features.darkMode ? "<ThemeToggle />" : ""}
-            </div>
+              </div>
           </div>
         </nav>`;
   }
@@ -1975,8 +3663,8 @@ function genSingleColumnPage(data: WorkspaceData, layout: LayoutType, theme: The
                 <Image src="/images/avatar.png" alt="" width={140} height={140} className="w-full h-full object-cover" unoptimized />
               </div>
             </div>
-            ${features.typewriter ? "<TypewriterHero />" : `<h1 className="text-4xl md:text-5xl font-bold mb-3">{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</h1>
-            <p className="text-xl text-text-muted">{lang === "zh" ? "${data.title}" : "${data.titleEn}"}</p>`}
+            <h1 className="text-4xl md:text-5xl font-bold mb-3">{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</h1>
+            <p className="text-xl text-text-muted">{lang === "zh" ? "${data.title}" : "${data.titleEn}"}</p>
             <div className="flex flex-wrap justify-center gap-2 mt-8">
               {t.hero.tags.map((tag) => (<span key={tag} className="badge">{tag}</span>))}
             </div>
@@ -1994,8 +3682,8 @@ function genSingleColumnPage(data: WorkspaceData, layout: LayoutType, theme: The
               </div>
             </div>
             <div className="flex-1">
-              ${features.typewriter ? "<TypewriterHero />" : `<h1 className="text-3xl font-bold mb-2">{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</h1>
-              <p className="text-text-muted">{lang === "zh" ? "${data.title}" : "${data.titleEn}"}</p>`}
+              <h1 className="text-3xl font-bold mb-2">{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</h1>
+              <p className="text-text-muted">{lang === "zh" ? "${data.title}" : "${data.titleEn}"}</p>
               <div className="flex flex-wrap gap-2 mt-6">
                 {t.hero.tags.map((tag) => (<span key={tag} className="badge">{tag}</span>))}
               </div>
@@ -2004,11 +3692,25 @@ function genSingleColumnPage(data: WorkspaceData, layout: LayoutType, theme: The
         </section>`;
   }
 
+  // --- About section ---
+  const about = `
+        {/* About */}
+        <section id="about" className="max-w-[1100px] mx-auto px-6 py-16${sectionClass ? ` ${sectionClass}` : ""}">
+          <h2 className="section-heading">{t.sections.about}</h2>
+          <div className="card p-6">
+            <p className="text-text-muted leading-relaxed mb-4">{t.about.text}</p>
+            <div className="flex flex-wrap gap-2">
+              {t.about.tags.map((tag) => (<span key={tag} className="badge">{tag}</span>))}
+            </div>
+          </div>
+        </section>`;
+
   // --- Projects section variations ---
   let projects: string;
   if (layout === "z-shape") {
     projects = `
         {/* Projects – Z-Shape */}
+        {t.projects.length > 0 && (
         <section id="projects" className="px-6 py-16${sectionClass ? ` ${sectionClass}` : ""}">
           <h2 className="section-heading">{t.sections.projects}</h2>
           <div className="space-y-16">
@@ -2035,10 +3737,12 @@ function genSingleColumnPage(data: WorkspaceData, layout: LayoutType, theme: The
               </div>
             ))}
           </div>
-        </section>`;
+        </section>
+        )}`;
   } else {
     projects = `
         {/* Projects */}
+        {t.projects.length > 0 && (
         <section id="projects" className="max-w-[1100px] mx-auto px-6 py-16${sectionClass ? ` ${sectionClass}` : ""}">
           <h2 className="section-heading">{t.sections.projects}</h2>
           <div className="grid md:grid-cols-2 gap-5">
@@ -2063,7 +3767,8 @@ function genSingleColumnPage(data: WorkspaceData, layout: LayoutType, theme: The
               </div>
             ))}
           </div>
-        </section>`;
+        </section>
+        )}`;
   }
 
   // --- Interactive scroll observer ---
@@ -2093,9 +3798,12 @@ export default function Home() {
 
         ${hero}
 
+        ${about}
+
         ${projects}
 
         {/* Timeline */}
+        {t.timeline.length > 0 && (
         <section id="timeline" className="max-w-[1100px] mx-auto px-6 py-16${sectionClass ? ` ${sectionClass}` : ""}">
           <h2 className="section-heading">{t.sections.timeline}</h2>
           <div className="${layout === "f-shape" ? "" : "max-w-2xl mx-auto "}relative pl-8">
@@ -2112,8 +3820,10 @@ export default function Home() {
             ))}
           </div>
         </section>
+        )}
 
         {/* Skills */}
+        {t.skills.length > 0 && (
         <section id="skills" className="max-w-[1100px] mx-auto px-6 py-16${sectionClass ? ` ${sectionClass}` : ""}">
           <h2 className="section-heading">{t.sections.skills}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -2129,8 +3839,10 @@ export default function Home() {
             ))}
           </div>
         </section>
+        )}
 
         {/* Education */}
+        {t.education.length > 0 && (
         <section id="education" className="max-w-[1100px] mx-auto px-6 py-16${sectionClass ? ` ${sectionClass}` : ""}">
           <h2 className="section-heading">{t.sections.education}</h2>
           <div className="grid md:grid-cols-2 gap-5 max-w-3xl mx-auto">
@@ -2152,6 +3864,7 @@ export default function Home() {
             ))}
           </div>
         </section>
+        )}
 
         {/* Contact */}
         <section id="contact" className="max-w-[1100px] mx-auto px-6 py-16${sectionClass ? ` ${sectionClass}` : ""}">
@@ -2174,8 +3887,8 @@ export default function Home() {
           </div>
         </footer>
       </div>
-      ${features.share ? "<SharePoster />" : ""}
-      ${features.chatbot ? "<ChatBot />" : ""}
+      <SharePoster />
+      <ChatBot />
     </div>
   );
 }
@@ -2187,8 +3900,8 @@ function genSidebarPage(data: WorkspaceData, _layout: LayoutType, theme: ThemeSt
     `"use client";`,
     `import Image from "next/image";`,
     `import { useLanguage } from "@/components/LanguageProvider";`,
-    features.chatbot ? `import ChatBot from "@/components/ChatBot";` : "",
-    features.share ? `import SharePoster from "@/components/SharePoster";` : "",
+    `import ChatBot from "@/components/ChatBot";`,
+    `import SharePoster from "@/components/SharePoster";`,
     theme === "cyberpunk" ? `import ParticleBackground from "@/components/ParticleBackground";` : "",
     theme === "retro" ? `import GrainOverlay from "@/components/GrainOverlay";` : "",
   ].filter(Boolean).join("\n");
@@ -2215,8 +3928,8 @@ export default function Home() {
               {t.hero.tags.slice(0, 4).map((tag) => (<span key={tag} className="badge">{tag}</span>))}
             </div>
             <nav className="flex flex-col gap-1 mb-6">
-              {([["projects", t.nav.projects], ["timeline", t.nav.timeline], ["skills", t.nav.skills], ["education", t.nav.education]] as const).map(([id, label]) => (
-                <a key={id} href={\`#\${id}\`} className="sidebar-nav-link">{label}</a>
+              {t.availableSections.filter(s => s !== "about" && s !== "contact").map((id) => (
+                <a key={id} href={\`#\${id}\`} className="sidebar-nav-link">{t.sections[id as keyof typeof t.sections] || id}</a>
               ))}
             </nav>
             <div className="flex justify-center gap-5 mb-5">
@@ -2231,6 +3944,17 @@ export default function Home() {
         </aside>
 
         <main className="content-panel">
+          <section id="about" className="mb-14">
+            <h2 className="section-heading">{t.sections.about}</h2>
+            <div className="card p-6">
+              <p className="text-text-muted leading-relaxed mb-4">{t.about.text}</p>
+              <div className="flex flex-wrap gap-2">
+                {t.about.tags.map((tag) => (<span key={tag} className="badge">{tag}</span>))}
+              </div>
+            </div>
+          </section>
+
+          {t.projects.length > 0 && (
           <section id="projects" className="mb-14">
             <h2 className="section-heading">{t.sections.projects}</h2>
             <div className="grid grid-cols-2 gap-5">
@@ -2254,7 +3978,9 @@ export default function Home() {
               ))}
             </div>
           </section>
+          )}
 
+          {t.timeline.length > 0 && (
           <section id="timeline" className="mb-14">
             <h2 className="section-heading">{t.sections.timeline}</h2>
             <div className="relative pl-6">
@@ -2273,7 +3999,9 @@ export default function Home() {
               </div>
             </div>
           </section>
+          )}
 
+          {t.skills.length > 0 && (
           <section id="skills" className="mb-14">
             <h2 className="section-heading">{t.sections.skills}</h2>
             <div className="grid grid-cols-2 gap-4">
@@ -2287,7 +4015,9 @@ export default function Home() {
               ))}
             </div>
           </section>
+          )}
 
+          {t.education.length > 0 && (
           <section id="education" className="mb-14">
             <h2 className="section-heading">{t.sections.education}</h2>
             <div className="grid grid-cols-2 gap-5">
@@ -2306,12 +4036,13 @@ export default function Home() {
               ))}
             </div>
           </section>
+          )}
 
           <footer className="text-center text-xs text-text-muted py-8 border-t border-line">{t.footer}</footer>
         </main>
       </div>
-      ${features.share ? "<SharePoster />" : ""}
-      ${features.chatbot ? "<ChatBot />" : ""}
+      <SharePoster />
+      <ChatBot />
     </>
   );
 }
@@ -2323,10 +4054,8 @@ function genGridPage(data: WorkspaceData, layout: LayoutType, theme: ThemeStyle,
     `"use client";`,
     `import { useLanguage } from "@/components/LanguageProvider";`,
     `import Image from "next/image";`,
-    features.typewriter ? `import TypewriterHero from "@/components/TypewriterHero";` : "",
-    features.darkMode ? `import ThemeToggle from "@/components/ThemeToggle";` : "",
-    features.chatbot ? `import ChatBot from "@/components/ChatBot";` : "",
-    features.share ? `import SharePoster from "@/components/SharePoster";` : "",
+    `import ChatBot from "@/components/ChatBot";`,
+    `import SharePoster from "@/components/SharePoster";`,
     theme === "cyberpunk" ? `import ParticleBackground from "@/components/ParticleBackground";` : "",
     theme === "retro" ? `import GrainOverlay from "@/components/GrainOverlay";` : "",
   ].filter(Boolean).join("\n");
@@ -2425,17 +4154,15 @@ export default function Home() {
           <div className="max-w-[1100px] mx-auto px-6 h-16 flex items-center justify-between">
             <span className="font-bold text-lg">{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</span>
             <div className="hidden md:flex items-center gap-6">
-              <a href="#projects" className="text-sm text-text-muted hover:text-text transition-colors">{t.nav.projects}</a>
-              <a href="#timeline" className="text-sm text-text-muted hover:text-text transition-colors">{t.nav.timeline}</a>
-              <a href="#skills" className="text-sm text-text-muted hover:text-text transition-colors">{t.nav.skills}</a>
-              <a href="#education" className="text-sm text-text-muted hover:text-text transition-colors">{t.nav.education}</a>
+              {t.availableSections.filter(s => s !== "about" && s !== "contact").map((id) => (
+                <a key={id} href={\`#\${id}\`} className="text-sm text-text-muted hover:text-text transition-colors">{t.sections[id as keyof typeof t.sections] || id}</a>
+              ))}
             </div>
             <div className="flex items-center gap-2">
               <button onClick={toggle} className="text-sm text-text-muted hover:text-text px-3 py-1.5 rounded-full border border-line transition-colors">
                 {lang === "zh" ? "EN" : "\\u4e2d"}
               </button>
-              ${features.darkMode ? "<ThemeToggle />" : ""}
-            </div>
+              </div>
           </div>
         </nav>
 
@@ -2448,8 +4175,8 @@ export default function Home() {
               </div>
             </div>
             <div className="flex-1">
-              ${features.typewriter ? "<TypewriterHero />" : `<h1 className="text-3xl font-bold mb-2">{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</h1>
-              <p className="text-text-muted">{lang === "zh" ? "${data.title}" : "${data.titleEn}"}</p>`}
+              <h1 className="text-3xl font-bold mb-2">{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</h1>
+              <p className="text-text-muted">{lang === "zh" ? "${data.title}" : "${data.titleEn}"}</p>
               <div className="flex flex-wrap gap-2 mt-6">
                 {t.hero.tags.map((tag) => (<span key={tag} className="badge">{tag}</span>))}
               </div>
@@ -2457,13 +4184,26 @@ export default function Home() {
           </div>
         </section>
 
+        <section id="about" className="max-w-[1100px] mx-auto px-6 py-16">
+          <h2 className="section-heading">{t.sections.about}</h2>
+          <div className="card p-6">
+            <p className="text-text-muted leading-relaxed mb-4">{t.about.text}</p>
+            <div className="flex flex-wrap gap-2">
+              {t.about.tags.map((tag) => (<span key={tag} className="badge">{tag}</span>))}
+            </div>
+          </div>
+        </section>
+
+        {t.projects.length > 0 && (
         <section id="projects" className="max-w-[1100px] mx-auto px-6 py-16">
           <h2 className="section-heading">{t.sections.projects}</h2>
           <div className="${gridClass}">
             ${projectItems}
           </div>
         </section>
+        )}
 
+        {t.timeline.length > 0 && (
         <section id="timeline" className="max-w-[1100px] mx-auto px-6 py-16">
           <h2 className="section-heading">{t.sections.timeline}</h2>
           <div className="max-w-2xl mx-auto relative pl-8">
@@ -2480,7 +4220,9 @@ export default function Home() {
             ))}
           </div>
         </section>
+        )}
 
+        {t.skills.length > 0 && (
         <section id="skills" className="max-w-[1100px] mx-auto px-6 py-16">
           <h2 className="section-heading">{t.sections.skills}</h2>
           <div className="${gridClass === "bento-grid" ? "bento-grid" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"}">
@@ -2496,7 +4238,9 @@ export default function Home() {
             ))}
           </div>
         </section>
+        )}
 
+        {t.education.length > 0 && (
         <section id="education" className="max-w-[1100px] mx-auto px-6 py-16">
           <h2 className="section-heading">{t.sections.education}</h2>
           <div className="grid md:grid-cols-2 gap-5 max-w-3xl mx-auto">
@@ -2518,6 +4262,7 @@ export default function Home() {
             ))}
           </div>
         </section>
+        )}
 
         <section id="contact" className="max-w-[1100px] mx-auto px-6 py-16">
           <h2 className="section-heading">{t.sections.contact}</h2>
@@ -2539,8 +4284,8 @@ export default function Home() {
           </div>
         </footer>
       </div>
-      ${features.share ? "<SharePoster />" : ""}
-      ${features.chatbot ? "<ChatBot />" : ""}
+      <SharePoster />
+      <ChatBot />
     </div>
   );
 }
@@ -2552,10 +4297,8 @@ function genSplitPage(data: WorkspaceData, theme: ThemeStyle, features: FeatureF
     `"use client";`,
     `import { useLanguage } from "@/components/LanguageProvider";`,
     `import Image from "next/image";`,
-    features.typewriter ? `import TypewriterHero from "@/components/TypewriterHero";` : "",
-    features.darkMode ? `import ThemeToggle from "@/components/ThemeToggle";` : "",
-    features.chatbot ? `import ChatBot from "@/components/ChatBot";` : "",
-    features.share ? `import SharePoster from "@/components/SharePoster";` : "",
+    `import ChatBot from "@/components/ChatBot";`,
+    `import SharePoster from "@/components/SharePoster";`,
     theme === "cyberpunk" ? `import ParticleBackground from "@/components/ParticleBackground";` : "",
     theme === "retro" ? `import GrainOverlay from "@/components/GrainOverlay";` : "",
   ].filter(Boolean).join("\n");
@@ -2577,16 +4320,15 @@ export default function Home() {
               <div className="avatar-glow" />
               <Image src="/images/avatar.png" alt="" width={128} height={128} className="relative z-10 w-full h-full rounded-full object-cover border-2 border-line" unoptimized />
             </div>
-            ${features.typewriter ? "<TypewriterHero />" : `<h1 className="text-3xl font-bold mb-2">{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</h1>
-            <p className="text-text-muted mb-6">{lang === "zh" ? "${data.title}" : "${data.titleEn}"}</p>`}
+            <h1 className="text-3xl font-bold mb-2">{lang === "zh" ? "${data.name}" : "${data.nameEn}"}</h1>
+            <p className="text-text-muted mb-6">{lang === "zh" ? "${data.title}" : "${data.titleEn}"}</p>
             <div className="flex flex-wrap justify-center gap-2 mb-8">
               {t.hero.tags.map((tag) => (<span key={tag} className="badge">{tag}</span>))}
             </div>
             <nav className="flex flex-col gap-2 mb-8">
-              <a href="#projects" className="text-sm text-text-muted hover:text-accent transition-colors">{t.nav.projects}</a>
-              <a href="#timeline" className="text-sm text-text-muted hover:text-accent transition-colors">{t.nav.timeline}</a>
-              <a href="#skills" className="text-sm text-text-muted hover:text-accent transition-colors">{t.nav.skills}</a>
-              <a href="#education" className="text-sm text-text-muted hover:text-accent transition-colors">{t.nav.education}</a>
+              {t.availableSections.filter(s => s !== "about" && s !== "contact").map((id) => (
+                <a key={id} href={\`#\${id}\`} className="text-sm text-text-muted hover:text-accent transition-colors">{t.sections[id as keyof typeof t.sections] || id}</a>
+              ))}
             </nav>
             <div className="flex justify-center gap-4 mb-6">
               <a href="mailto:${data.email}" className="contact-icon">
@@ -2600,12 +4342,22 @@ export default function Home() {
               <button onClick={toggle} className="text-xs text-text-muted hover:text-accent border border-line rounded-full px-4 py-1.5 transition-colors">
                 {lang === "zh" ? "EN" : "\\u4e2d"}
               </button>
-              ${features.darkMode ? "<ThemeToggle />" : ""}
-            </div>
+              </div>
           </div>
         </div>
 
         <div className="split-right">
+          <section id="about" className="mb-14">
+            <h2 className="section-heading">{t.sections.about}</h2>
+            <div className="card p-6">
+              <p className="text-text-muted leading-relaxed mb-4">{t.about.text}</p>
+              <div className="flex flex-wrap gap-2">
+                {t.about.tags.map((tag) => (<span key={tag} className="badge">{tag}</span>))}
+              </div>
+            </div>
+          </section>
+
+          {t.projects.length > 0 && (
           <section id="projects" className="mb-14">
             <h2 className="section-heading">{t.sections.projects}</h2>
             <div className="space-y-4">
@@ -2631,7 +4383,9 @@ export default function Home() {
               ))}
             </div>
           </section>
+          )}
 
+          {t.timeline.length > 0 && (
           <section id="timeline" className="mb-14">
             <h2 className="section-heading">{t.sections.timeline}</h2>
             <div className="relative pl-6">
@@ -2648,7 +4402,9 @@ export default function Home() {
               ))}
             </div>
           </section>
+          )}
 
+          {t.skills.length > 0 && (
           <section id="skills" className="mb-14">
             <h2 className="section-heading">{t.sections.skills}</h2>
             <div className="grid grid-cols-2 gap-4">
@@ -2664,7 +4420,9 @@ export default function Home() {
               ))}
             </div>
           </section>
+          )}
 
+          {t.education.length > 0 && (
           <section id="education" className="mb-14">
             <h2 className="section-heading">{t.sections.education}</h2>
             <div className="space-y-4">
@@ -2686,12 +4444,13 @@ export default function Home() {
               ))}
             </div>
           </section>
+          )}
 
           <footer className="text-center text-sm text-text-muted py-8 border-t border-line">{t.footer}</footer>
         </div>
       </div>
-      ${features.share ? "<SharePoster />" : ""}
-      ${features.chatbot ? "<ChatBot />" : ""}
+      <SharePoster />
+      <ChatBot />
     </>
   );
 }
@@ -2707,8 +4466,9 @@ function genTranslations(data: WorkspaceData): string {
       lines: [`> Hello World`, `> ${data.name}`, `> ${data.title}`, `> ${data.location} · ${data.email}`],
       tags: data.tags,
     },
-    sections: { projects: "项目经验", timeline: "职业经历", skills: "专业技能", education: "教育背景", contact: "联系方式" },
-    projects: data.projects.map(p => ({ title: p.title, org: p.org, desc: p.desc, tags: p.tags, image: p.image, link: p.link || "", badge: p.badge || "" })),
+    sections: { about: "关于我", projects: "项目经验", timeline: "职业经历", skills: "专业技能", education: "教育背景", contact: "联系方式" },
+    about: { text: data.bio, tags: data.bioTags },
+    projects: data.projects.map((p, i) => ({ title: p.title, org: p.org, desc: p.desc, tags: p.tags, image: p.image || `/images/project-${i + 1}.png`, link: p.link || "", badge: p.badge || "" })),
     timeline: data.timeline,
     skills: data.skills,
     education: data.education,
@@ -2734,6 +4494,38 @@ function genTranslations(data: WorkspaceData): string {
       projectTags: data.projects.slice(0, 4).map(p => p.title),
       skillTags: data.skills.flatMap(g => g.skills).slice(0, 6),
     },
+    ui: {
+      heyIm: `嗨，我是 ${data.name}`,
+      welcomeToSite: `欢迎来到 ${data.name} 的个人主页`,
+      availableForHire: "开放合作机会",
+      letsCollaborate: "一起合作",
+      openForOpportunities: "期待新机遇",
+      contactMe: "联系我",
+      scrollDown: "向下滚动",
+      viewProject: "查看项目",
+      sectionSubtitles: {
+        about: "了解更多关于我的信息",
+        projects: "我参与的项目和作品",
+        timeline: "我的职业发展历程",
+        skills: "我掌握的技术和工具",
+        education: "我的教育背景",
+        contact: "与我取得联系",
+      },
+      statLabels: {
+        projects: "项目",
+        skills: "技能",
+        experiences: "工作经历",
+        education: "教育",
+      },
+    },
+    availableSections: [
+      "about",
+      ...(data.projects.length > 0 ? ["projects"] : []),
+      ...(data.timeline.length > 0 ? ["timeline"] : []),
+      ...(data.skills.length > 0 ? ["skills"] : []),
+      ...(data.education.length > 0 ? ["education"] : []),
+      "contact",
+    ],
   };
   const en = {
     nav: { projects: "Projects", timeline: "Experience", skills: "Skills", education: "Education", contact: "Contact" },
@@ -2741,8 +4533,9 @@ function genTranslations(data: WorkspaceData): string {
       lines: [`> Hello World`, `> ${data.nameEn || data.name}`, `> ${data.titleEn || data.title}`, `> ${data.locationEn || data.location} · ${data.email}`],
       tags: data.tagsEn || data.tags,
     },
-    sections: { projects: "Projects", timeline: "Experience", skills: "Skills", education: "Education", contact: "Contact" },
-    projects: (data.projectsEn || data.projects).map(p => ({ title: p.title, org: p.org, desc: p.desc, tags: p.tags, image: p.image, link: p.link || "", badge: p.badge || "" })),
+    sections: { about: "About Me", projects: "Projects", timeline: "Experience", skills: "Skills", education: "Education", contact: "Contact" },
+    about: { text: data.bioEn, tags: data.bioTagsEn },
+    projects: (data.projectsEn || data.projects).map((p, i) => ({ title: p.title, org: p.org, desc: p.desc, tags: p.tags, image: p.image || `/images/project-${i + 1}.png`, link: p.link || "", badge: p.badge || "" })),
     timeline: data.timelineEn || data.timeline,
     skills: data.skillsEn || data.skills,
     education: data.educationEn || data.education,
@@ -2768,15 +4561,70 @@ function genTranslations(data: WorkspaceData): string {
       projectTags: (data.projectsEn || data.projects).slice(0, 4).map(p => p.title),
       skillTags: (data.skillsEn || data.skills).flatMap(g => g.skills).slice(0, 6),
     },
+    ui: {
+      heyIm: `Hey, I'm ${data.nameEn || data.name}`,
+      welcomeToSite: `Welcome to ${data.nameEn || data.name}'s portfolio`,
+      availableForHire: "Available for hire",
+      letsCollaborate: "Let's collaborate",
+      openForOpportunities: "Open for opportunities",
+      contactMe: "Contact Me",
+      scrollDown: "Scroll down",
+      viewProject: "View Project",
+      sectionSubtitles: {
+        about: "Learn more about me",
+        projects: "Projects and work I've been involved in",
+        timeline: "My career journey",
+        skills: "Technologies and tools I work with",
+        education: "My educational background",
+        contact: "Get in touch with me",
+      },
+      statLabels: {
+        projects: "Projects",
+        skills: "Skills",
+        experiences: "Experiences",
+        education: "Education",
+      },
+    },
+    availableSections: [
+      "about",
+      ...((data.projectsEn || data.projects).length > 0 ? ["projects"] : []),
+      ...((data.timelineEn || data.timeline).length > 0 ? ["timeline"] : []),
+      ...((data.skillsEn || data.skills).length > 0 ? ["skills"] : []),
+      ...((data.educationEn || data.education).length > 0 ? ["education"] : []),
+      "contact",
+    ],
   };
 
-  return `export const translations = {
+  return `
+interface TranslationEdu { school: string; degree: string; highlights: string[]; }
+interface TranslationProject { title: string; org: string; desc: string; tags: string[]; image: string; link: string; badge: string; }
+interface TranslationTimeline { date: string; title: string; desc: string; active?: boolean; }
+interface TranslationSkill { title: string; skills: string[]; }
+interface TranslationChatbot { title: string; subtitle: string; welcome: string; placeholder: string; send: string; tooltip: string; suggestions: string[]; }
+interface TranslationShare { button: string; title: string; invite: string; desc: string; cta: string; save: string; copy: string; copied: string; projectTags: string[]; skillTags: string[]; }
+interface TranslationData {
+  nav: Record<string, string>;
+  hero: { lines: string[]; tags: string[] };
+  sections: Record<string, string>;
+  about: { text: string; tags: string[] };
+  projects: TranslationProject[];
+  timeline: TranslationTimeline[];
+  skills: TranslationSkill[];
+  education: TranslationEdu[];
+  footer: string;
+  chatbot: TranslationChatbot;
+  share: TranslationShare;
+  ui: { heyIm: string; welcomeToSite: string; availableForHire: string; letsCollaborate: string; openForOpportunities: string; contactMe: string; scrollDown: string; viewProject: string; sectionSubtitles: Record<string, string>; statLabels: Record<string, string>; };
+  availableSections: string[];
+}
+
+export const translations: { zh: TranslationData; en: TranslationData } = {
   zh: ${JSON.stringify(zh, null, 2)},
   en: ${JSON.stringify(en, null, 2)},
-} as const;
+};
 
 export type Lang = keyof typeof translations;
-export type Translations = (typeof translations)[Lang];
+export type Translations = TranslationData;
 `;
 }
 
@@ -3026,9 +4874,7 @@ export default function SharePoster() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const W = 750, H = 1100;
-    canvas.width = W;
-    canvas.height = H;
+    const W = 540, H = 620;
     const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
     canvas.width = W * dpr;
     canvas.height = H * dpr;
@@ -3036,182 +4882,180 @@ export default function SharePoster() {
     canvas.style.height = H + "px";
     ctx.scale(dpr, dpr);
 
-    // --- Background gradient ---
-    const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+    // --- Read CSS variables for theme-aware rendering ---
     const s = getComputedStyle(document.documentElement);
     const accent = s.getPropertyValue("--color-accent").trim() || "#6366f1";
     const bg = s.getPropertyValue("--color-bg").trim() || "#0a0a0f";
+    const textColor = s.getPropertyValue("--color-text").trim() || "#ffffff";
+    const mutedColor = s.getPropertyValue("--color-text-muted").trim() || "#9ca3af";
+    const fontFamily = s.getPropertyValue("--font-sans").trim() || "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+    const fontBase = fontFamily.split(",").slice(0, 2).join(",");
+    const cx = W / 2;
+
+    // --- Background gradient ---
+    const bgGrad = ctx.createLinearGradient(0, 0, W, H);
     bgGrad.addColorStop(0, bg);
-    bgGrad.addColorStop(0.5, mixColor(bg, accent, 0.15));
-    bgGrad.addColorStop(1, mixColor(bg, accent, 0.25));
+    bgGrad.addColorStop(0.5, mixColor(bg, accent, 0.12));
+    bgGrad.addColorStop(1, mixColor(bg, accent, 0.2));
     ctx.fillStyle = bgGrad;
     roundRect(ctx, 0, 0, W, H, 0);
 
     // --- Decorative circles ---
-    ctx.globalAlpha = 0.08;
+    ctx.globalAlpha = 0.07;
     ctx.fillStyle = accent;
-    ctx.beginPath(); ctx.arc(W * 0.85, H * 0.12, 180, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(W * 0.1, H * 0.75, 120, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(W * 0.85, H * 0.1, 110, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(W * 0.08, H * 0.8, 80, 0, Math.PI * 2); ctx.fill();
     ctx.globalAlpha = 1;
 
     // --- Glass card ---
-    const cardX = 50, cardY = 80, cardW = W - 100, cardH = H - 160;
+    const cardX = 32, cardY = 40, cardW = W - 64, cardH = H - 80;
     ctx.save();
     ctx.fillStyle = isLight(bg) ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.06)";
     ctx.strokeStyle = isLight(bg) ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.1)";
     ctx.lineWidth = 1;
-    roundRect(ctx, cardX, cardY, cardW, cardH, 24);
+    roundRect(ctx, cardX, cardY, cardW, cardH, 20);
     ctx.stroke();
     ctx.restore();
 
-    const textColor = s.getPropertyValue("--color-text").trim() || "#ffffff";
-    const mutedColor = s.getPropertyValue("--color-text-muted").trim() || "#9ca3af";
-    const cx = W / 2;
+    // --- Draw rest after avatar loads ---
+    const drawContent = (avatarImg?: HTMLImageElement) => {
+      const avatarY = cardY + 50;
+      const avatarR = 32;
 
-    // --- Avatar circle ---
-    const avatarY = cardY + 70;
-    ctx.save();
-    ctx.fillStyle = mixColor(accent, bg, 0.3);
-    ctx.beginPath(); ctx.arc(cx, avatarY, 52, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-    // Avatar icon (person silhouette)
-    ctx.fillStyle = accent;
-    ctx.beginPath(); ctx.arc(cx, avatarY - 8, 16, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(cx, avatarY + 24, 26, 18, 0, Math.PI, 0, true); ctx.fill();
-    ctx.restore();
+      if (avatarImg) {
+        // Draw real avatar image in circle
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, avatarY, avatarR, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.clip();
+        ctx.drawImage(avatarImg, cx - avatarR, avatarY - avatarR, avatarR * 2, avatarR * 2);
+        ctx.restore();
+        // Border ring
+        ctx.strokeStyle = isLight(bg) ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.15)";
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(cx, avatarY, avatarR, 0, Math.PI * 2); ctx.stroke();
+      } else {
+        // Fallback: colored circle with silhouette
+        ctx.save();
+        ctx.fillStyle = mixColor(accent, bg, 0.3);
+        ctx.beginPath(); ctx.arc(cx, avatarY, avatarR, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = accent; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = accent;
+        ctx.beginPath(); ctx.arc(cx, avatarY - 6, 13, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(cx, avatarY + 18, 20, 14, 0, Math.PI, 0, true); ctx.fill();
+        ctx.restore();
+      }
 
-    // --- Name ---
-    const nameY = avatarY + 80;
-    ctx.fillStyle = textColor;
-    ctx.font = "bold 36px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-    ctx.textAlign = "center";
-    const name = lang === "zh" ? t.hero.lines[1]?.replace("> ", "") : t.hero.lines[1]?.replace("> ", "");
-    ctx.fillText(name || "", cx, nameY);
-
-    // --- Title ---
-    ctx.fillStyle = mutedColor;
-    ctx.font = "18px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-    const title = t.hero.lines[2]?.replace("> ", "") || "";
-    ctx.fillText(title, cx, nameY + 34);
-
-    // --- Divider ---
-    const divY = nameY + 64;
-    const divGrad = ctx.createLinearGradient(cardX + 60, divY, cardX + cardW - 60, divY);
-    divGrad.addColorStop(0, "transparent");
-    divGrad.addColorStop(0.3, accent);
-    divGrad.addColorStop(0.7, accent);
-    divGrad.addColorStop(1, "transparent");
-    ctx.strokeStyle = divGrad;
-    ctx.globalAlpha = 0.4;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(cardX + 60, divY);
-    ctx.lineTo(cardX + cardW - 60, divY);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-
-    // --- Invite text ---
-    const inviteY = divY + 50;
-    ctx.fillStyle = textColor;
-    ctx.font = "bold 28px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-    ctx.fillText(share.invite, cx, inviteY);
-
-    // --- Description ---
-    ctx.fillStyle = mutedColor;
-    ctx.font = "16px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-    const descLines = wrapText(ctx, share.desc, cardW - 120);
-    descLines.forEach((line, i) => {
-      ctx.fillText(line, cx, inviteY + 44 + i * 26);
-    });
-
-    // --- Project tags ---
-    let nextY = inviteY + 44 + descLines.length * 26 + 30;
-    const drawTagRow = (label: string, items: string[], color: string) => {
-      if (items.length === 0) return;
-      ctx.fillStyle = mutedColor;
-      ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+      // --- Name ---
+      const nameY = avatarY + avatarR + 28;
+      ctx.fillStyle = textColor;
+      ctx.font = \`bold 26px \${fontBase}\`;
       ctx.textAlign = "center";
-      ctx.fillText(label, cx, nextY);
-      nextY += 22;
-      ctx.font = "13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-      // Measure and center tags
-      let totalW = 0;
-      const widths = items.map((tag) => {
-        const w = ctx.measureText(tag).width + 24;
-        totalW += w + 6;
-        return w;
+      const name = lang === "zh" ? t.hero.lines[1]?.replace("> ", "") : t.hero.lines[1]?.replace("> ", "");
+      ctx.fillText(name || "", cx, nameY);
+
+      // --- Title ---
+      ctx.fillStyle = mutedColor;
+      ctx.font = \`14px \${fontBase}\`;
+      const title = t.hero.lines[2]?.replace("> ", "") || "";
+      ctx.fillText(title, cx, nameY + 26);
+
+      // --- Divider ---
+      const divY = nameY + 46;
+      const divGrad = ctx.createLinearGradient(cardX + 40, divY, cardX + cardW - 40, divY);
+      divGrad.addColorStop(0, "transparent");
+      divGrad.addColorStop(0.3, accent);
+      divGrad.addColorStop(0.7, accent);
+      divGrad.addColorStop(1, "transparent");
+      ctx.strokeStyle = divGrad;
+      ctx.globalAlpha = 0.35;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(cardX + 40, divY);
+      ctx.lineTo(cardX + cardW - 40, divY);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      // --- Invite text ---
+      const inviteY = divY + 34;
+      ctx.fillStyle = textColor;
+      ctx.font = \`bold 18px \${fontBase}\`;
+      ctx.fillText(share.invite, cx, inviteY);
+
+      // --- Description ---
+      ctx.fillStyle = mutedColor;
+      ctx.font = \`13px \${fontBase}\`;
+      const descLines = wrapText(ctx, share.desc, cardW - 80);
+      descLines.slice(0, 2).forEach((line, i) => {
+        ctx.fillText(line, cx, inviteY + 30 + i * 20);
       });
-      totalW -= 6;
-      // Wrap to multiple lines if needed
-      const maxLineW = cardW - 80;
-      let lineX = cx - Math.min(totalW, maxLineW) / 2;
-      let lineW = 0;
-      items.forEach((tag, i) => {
-        if (lineW + widths[i] > maxLineW && lineW > 0) {
-          nextY += 32;
-          lineW = 0;
-          const remaining = items.slice(i).reduce((s, _, j) => s + widths[i + j] + 6, -6);
-          lineX = cx - Math.min(remaining, maxLineW) / 2;
-        }
-        ctx.fillStyle = isLight(bg) ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.08)";
-        roundRect(ctx, lineX + lineW, nextY, widths[i], 28, 14);
-        ctx.fillStyle = color;
+
+      // --- Skill tags (compact) ---
+      let nextY = inviteY + 30 + Math.min(descLines.length, 2) * 20 + 20;
+      const skillTags = (share.skillTags || []).slice(0, 8);
+      if (skillTags.length > 0) {
+        ctx.fillStyle = mutedColor;
+        ctx.font = \`bold 12px \${fontBase}\`;
         ctx.textAlign = "center";
-        ctx.fillText(tag, lineX + lineW + widths[i] / 2, nextY + 19);
-        lineW += widths[i] + 6;
-      });
-      nextY += 42;
+        ctx.fillText(lang === "zh" ? "\\u{2B50} 专业技能" : "\\u{2B50} Skills", cx, nextY);
+        nextY += 18;
+        ctx.font = \`12px \${fontBase}\`;
+        let totalW = 0;
+        const widths = skillTags.map((tag) => { const w = ctx.measureText(tag).width + 20; totalW += w + 5; return w; });
+        totalW -= 5;
+        const maxLineW = cardW - 60;
+        let lineX = cx - Math.min(totalW, maxLineW) / 2;
+        let lineW = 0;
+        skillTags.forEach((tag, i) => {
+          if (lineW + widths[i] > maxLineW && lineW > 0) {
+            nextY += 28;
+            lineW = 0;
+            const remaining = skillTags.slice(i).reduce((s2, _, j) => s2 + widths[i + j] + 5, -5);
+            lineX = cx - Math.min(remaining, maxLineW) / 2;
+          }
+          ctx.fillStyle = isLight(bg) ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.08)";
+          roundRect(ctx, lineX + lineW, nextY, widths[i], 24, 12);
+          ctx.fillStyle = textColor;
+          ctx.textAlign = "center";
+          ctx.fillText(tag, lineX + lineW + widths[i] / 2, nextY + 16);
+          lineW += widths[i] + 5;
+        });
+        nextY += 36;
+      }
+
+      // --- QR Code ---
+      const qrY = nextY;
+      const url = typeof window !== "undefined" ? window.location.href : "";
+      if (url) {
+        QRCode.toDataURL(url, { width: 200, margin: 1, color: { dark: "#000000", light: "#ffffff" } })
+          .then((dataUrl: string) => {
+            const qrImg = new Image();
+            qrImg.onload = () => {
+              const qrSize = 90;
+              const qrX = cx - qrSize / 2;
+              ctx.fillStyle = "#ffffff";
+              roundRect(ctx, qrX - 8, qrY - 8, qrSize + 16, qrSize + 16, 12);
+              ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+              ctx.fillStyle = mutedColor;
+              ctx.font = \`12px \${fontBase}\`;
+              ctx.textAlign = "center";
+              ctx.globalAlpha = 0.6;
+              ctx.fillText(lang === "zh" ? "扫码访问" : "Scan to visit", cx, qrY + qrSize + 20);
+              ctx.globalAlpha = 1;
+            };
+            qrImg.src = dataUrl;
+          })
+          .catch(() => {});
+      }
     };
 
-    drawTagRow(lang === "zh" ? "\\u{1F4C2} 项目经验" : "\\u{1F4C2} Projects", share.projectTags || [], accent);
-    drawTagRow(lang === "zh" ? "\\u{2B50} 专业技能" : "\\u{2B50} Skills", share.skillTags || [], textColor);
-
-    // --- CTA ---
-    const ctaY = nextY;
-    ctx.fillStyle = accent;
-    roundRect(ctx, cx - 180, ctaY, 360, 48, 24);
-    ctx.fillStyle = isLight(accent) ? "#000" : "#fff";
-    ctx.font = "bold 17px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(share.cta, cx, ctaY + 31);
-
-    // --- QR Code (drawn async) ---
-    const qrY = ctaY + 64;
-    const url = typeof window !== "undefined" ? window.location.href : "";
-    if (url) {
-      QRCode.toDataURL(url, { width: 240, margin: 1, color: { dark: "#000000", light: "#ffffff" } })
-        .then((dataUrl: string) => {
-          const img = new Image();
-          img.onload = () => {
-            const qrSize = 120;
-            const qrX = cx - qrSize / 2;
-            // White background with rounded corners
-            ctx.fillStyle = "#ffffff";
-            roundRect(ctx, qrX - 10, qrY - 10, qrSize + 20, qrSize + 20, 14);
-            // Draw QR image
-            ctx.drawImage(img, qrX, qrY, qrSize, qrSize);
-            // Scan hint below QR
-            ctx.fillStyle = mutedColor;
-            ctx.font = "13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-            ctx.textAlign = "center";
-            ctx.globalAlpha = 0.6;
-            ctx.fillText(lang === "zh" ? "扫码访问" : "Scan to visit", cx, qrY + qrSize + 24);
-            ctx.globalAlpha = 1;
-          };
-          img.src = dataUrl;
-        })
-        .catch(() => {
-          // Fallback: just show URL text
-          ctx.fillStyle = mutedColor;
-          ctx.font = "13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-          ctx.textAlign = "center";
-          ctx.globalAlpha = 0.6;
-          ctx.fillText(url, cx, qrY + 20);
-          ctx.globalAlpha = 1;
-        });
-    }
+    // Load avatar image, then draw content
+    const avatarImg = new Image();
+    avatarImg.crossOrigin = "anonymous";
+    avatarImg.onload = () => drawContent(avatarImg);
+    avatarImg.onerror = () => drawContent();
+    avatarImg.src = "/images/avatar.png";
   }, [open, lang, t, share]);
 
   useEffect(() => {
@@ -3259,12 +5103,12 @@ export default function SharePoster() {
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" onClick={() => setOpen(false)}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
           <div
-            className="relative bg-bg-card-solid rounded-2xl shadow-2xl max-w-[420px] w-full max-h-[90vh] overflow-auto border border-line"
+            className="relative bg-bg-card-solid rounded-2xl shadow-2xl max-w-[340px] w-full max-h-[90vh] flex flex-col border border-line"
             onClick={(e) => e.stopPropagation()}
             style={{ animation: "fadeSlideUp 0.3s ease forwards" }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 pt-5 pb-3">
+            <div className="flex items-center justify-between px-4 pt-4 pb-2 shrink-0">
               <h3 className="font-bold text-lg text-text">{share.title}</h3>
               <button onClick={() => setOpen(false)} className="text-text-muted hover:text-text p-1 rounded-lg transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -3272,16 +5116,16 @@ export default function SharePoster() {
             </div>
 
             {/* Canvas poster */}
-            <div className="px-5 flex justify-center">
+            <div className="px-4 flex justify-center min-h-0 flex-1 overflow-hidden">
               <canvas
                 ref={canvasRef}
-                className="rounded-xl shadow-inner w-full"
-                style={{ maxWidth: 375 }}
+                className="rounded-xl shadow-inner object-contain"
+                style={{ width: "100%", height: "auto", maxHeight: "100%" }}
               />
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-3 p-5">
+            <div className="flex gap-3 p-4 shrink-0">
               <button
                 onClick={handleSave}
                 className="flex-1 py-2.5 rounded-xl bg-accent text-white font-medium text-sm hover:bg-accent/90 transition-colors flex items-center justify-center gap-2"
@@ -3521,5 +5365,109 @@ export async function POST(req: NextRequest) {
 
   return new Response(stream, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
 }
+`;
+}
+
+/**
+ * Generate the Ghibli image generation script using SiliconFlow's image API.
+ * Creates: ghibli-background, avatar, chatbot-spirit, and per-project images.
+ */
+function genGhibliImageScript(data: WorkspaceData): string {
+  // Build project image entries from data
+  const projectImages = data.projects.slice(0, 8).map((p, i) => {
+    const safeName = `project-${i + 1}.png`;
+    const keywords = p.tags.slice(0, 3).join(", ");
+    return `  {
+    name: "${safeName}",
+    prompt: "A Studio Ghibli style watercolor illustration related to ${p.title.replace(/"/g, '\\"')}. Keywords: ${keywords.replace(/"/g, '\\"')}. Warm color palette with sage greens, sky blues, warm creams and golden tones. Hayao Miyazaki inspired painting. Dreamy atmosphere, painterly texture. No characters, no text. 16:9 aspect ratio.",
+  },`;
+  }).join("\n");
+
+  return `import fs from "fs";
+import path from "path";
+
+const API_KEY = process.env.SILICONFLOW_API_KEY || "";
+const OUT_DIR = path.resolve("public/images");
+
+const IMAGES = [
+  {
+    name: "ghibli-background.png",
+    prompt: "A wide panoramic Studio Ghibli style landscape painting. Rolling green hills covered in wildflowers, a winding dirt path through meadows, fluffy white cumulus clouds in a soft blue sky, distant mountains with snow-capped peaks, golden sunset light filtering through clouds. Warm watercolor style, dreamy atmosphere, soft color palette with sage greens, sky blues, warm creams and golden tones. Hayao Miyazaki inspired painting. No characters, no text. 16:9 aspect ratio, high resolution.",
+  },
+  {
+    name: "avatar.png",
+    prompt: "A cute Studio Ghibli style watercolor painting of an adorable fluffy orange tabby cat sitting upright. The cat has big expressive round eyes, wearing a tiny green leaf scarf. Soft warm lighting, dreamy pastel background with floating dandelion seeds. Miyazaki watercolor illustration style. Circular portrait crop. No text. Square 1:1 ratio.",
+  },
+  {
+    name: "chatbot-spirit.png",
+    prompt: "A cute Studio Ghibli style small forest spirit character, round and fluffy, similar to a kodama or small totoro. Soft sage green and white colors, big friendly sparkling eyes, tiny leaf on top of its head. Clean illustration on a warm cream background with soft glow. Kawaii Miyazaki style. No text. Square 1:1 ratio.",
+  },
+${projectImages}
+];
+
+async function generateImage(item) {
+  console.log(\`Generating: \${item.name}...\`);
+  try {
+    const res = await fetch("https://api.siliconflow.cn/v1/images/generations", {
+      method: "POST",
+      headers: {
+        Authorization: \`Bearer \${API_KEY}\`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "black-forest-labs/FLUX.1-schnell",
+        prompt: item.prompt,
+        image_size: item.name === "avatar.png" || item.name === "chatbot-spirit.png" ? "1024x1024" : "1024x576",
+        num_inference_steps: 20,
+      }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error(\`API error for \${item.name}: \${res.status} \${errText}\`);
+      return false;
+    }
+
+    const data = await res.json();
+    const imageUrl = data.images?.[0]?.url;
+    if (!imageUrl) {
+      console.error(\`No image URL in response for \${item.name}\`);
+      return false;
+    }
+
+    // Download the image
+    const imgRes = await fetch(imageUrl);
+    if (!imgRes.ok) {
+      console.error(\`Failed to download image for \${item.name}\`);
+      return false;
+    }
+    const buffer = Buffer.from(await imgRes.arrayBuffer());
+    const outPath = path.join(OUT_DIR, item.name);
+    fs.writeFileSync(outPath, buffer);
+    console.log(\`Saved: \${outPath} (\${buffer.length} bytes)\`);
+    return true;
+  } catch (err) {
+    console.error(\`Error generating \${item.name}:\`, err.message);
+    return false;
+  }
+}
+
+async function main() {
+  if (!API_KEY) {
+    console.error("Please set SILICONFLOW_API_KEY in .env.local");
+    process.exit(1);
+  }
+  if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
+
+  for (const item of IMAGES) {
+    const ok = await generateImage(item);
+    if (!ok) console.log("  -> Failed, continuing...");
+    await new Promise((r) => setTimeout(r, 1500));
+  }
+
+  console.log("\\nDone! Check public/images/");
+}
+
+main();
 `;
 }
